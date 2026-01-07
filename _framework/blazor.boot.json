@@ -1,9 +1,9 @@
 {
   "mainAssemblyName": "Planr.Wasm",
   "resources": {
-    "hash": "sha256-a+Ctl6IdkzOMpMVDCSaEbOFFUV8aZz1iBbVD9SguTVw=",
+    "hash": "sha256-20Ds9yKzSwBGNiHRiD4XlE3lJrl0dXMny5nagrihbkk=",
     "fingerprinting": {
-      "Microsoft.AspNetCore.Components.04uc6l21w2.wasm": "Microsoft.AspNetCore.Components.wasm",
+      "Microsoft.AspNetCore.Components.ag8nexeulx.wasm": "Microsoft.AspNetCore.Components.wasm",
       "Microsoft.AspNetCore.Components.Web.xbjt2g1ki0.wasm": "Microsoft.AspNetCore.Components.Web.wasm",
       "Microsoft.AspNetCore.Components.WebAssembly.wqda42smrv.wasm": "Microsoft.AspNetCore.Components.WebAssembly.wasm",
       "Microsoft.CSharp.d5kvbv5j7x.wasm": "Microsoft.CSharp.wasm",
@@ -18,8 +18,8 @@
       "Microsoft.Extensions.Primitives.wgkaqcaqxl.wasm": "Microsoft.Extensions.Primitives.wasm",
       "Microsoft.JSInterop.dah699e81m.wasm": "Microsoft.JSInterop.wasm",
       "Microsoft.JSInterop.WebAssembly.dnug9e66zg.wasm": "Microsoft.JSInterop.WebAssembly.wasm",
-      "Planr.Core.ypb8mvrdjf.wasm": "Planr.Core.wasm",
-      "Planr.Wasm.gnzx2dkgzf.wasm": "Planr.Wasm.wasm",
+      "Planr.Core.f7o4xhys4f.wasm": "Planr.Core.wasm",
+      "Planr.Wasm.on9882np0g.wasm": "Planr.Wasm.wasm",
       "Scriban.kys4rrzc6e.wasm": "Scriban.wasm",
       "System.Collections.fk94ey3js0.wasm": "System.Collections.wasm",
       "System.Collections.Concurrent.u92v4lrz1o.wasm": "System.Collections.Concurrent.wasm",
@@ -74,7 +74,7 @@
       "System.Runtime.InteropServices.JavaScript.8z290vppku.wasm": "sha256-rNzWhBOFDey9RsCv9RYwXjilGSxT7OPih9Pom7VnobY="
     },
     "assembly": {
-      "Microsoft.AspNetCore.Components.04uc6l21w2.wasm": "sha256-kEIpg/9jwOOs78wB1RTlyaTI2t86VKLX5xnAO0IC7G8=",
+      "Microsoft.AspNetCore.Components.ag8nexeulx.wasm": "sha256-diPSmIzDzKqH18hzl7byH4uTi4eNwBZxiK7jHjhFEEg=",
       "Microsoft.AspNetCore.Components.Web.xbjt2g1ki0.wasm": "sha256-HZnQ2Vaa7W1/BB90QA1oixX5NB6JClrx30Y/mbkqNSs=",
       "Microsoft.AspNetCore.Components.WebAssembly.wqda42smrv.wasm": "sha256-GHDpj+zRwjNm/TKeIEW4UZvv02sDp0kEEtkcXlgROlE=",
       "Microsoft.CSharp.d5kvbv5j7x.wasm": "sha256-wU5/OwG0bRMSqlgET71Z21ceT1MFpCUMt6gDAcM3kAo=",
@@ -89,8 +89,8 @@
       "Microsoft.Extensions.Primitives.wgkaqcaqxl.wasm": "sha256-4E9QgG80eMrFZtU2cQ3IdWiSy9K4odn43sch89M9Y9Y=",
       "Microsoft.JSInterop.dah699e81m.wasm": "sha256-BeoInvV29Po15++LcW0qxYq9+OUaTotr6sJXAFilBVU=",
       "Microsoft.JSInterop.WebAssembly.dnug9e66zg.wasm": "sha256-1391UuW9RnaY9v+RXWFFkaN+3zIkFWK6F/i2rkesTxo=",
-      "Planr.Core.ypb8mvrdjf.wasm": "sha256-Vo8Ceu6MGwwmwr7P41n+bgA/4lC6n4VcwRt5JHQZGoA=",
-      "Planr.Wasm.gnzx2dkgzf.wasm": "sha256-RPcZkyOt9TXkS7uV8TsUFkdm2Xfa4Mzh38KPiSZRG7c=",
+      "Planr.Core.f7o4xhys4f.wasm": "sha256-ixjlkpiVSXYsD7yDYESsEerJwxaPOuQ9Wqdbe6zrENU=",
+      "Planr.Wasm.on9882np0g.wasm": "sha256-5OJmB455TN8/KBNxlbXnf4RWV4brkNONhwvr1EiIWaY=",
       "Scriban.kys4rrzc6e.wasm": "sha256-ZB0hQzrMXtuSNl8bVOeyyqGahSBbwXwSJ7rilSCpCG4=",
       "System.Collections.fk94ey3js0.wasm": "sha256-b4+b66nR7GVL+5/nwO4XsNfEO9ir9iNjur4MTlji0Zk=",
       "System.Collections.Concurrent.u92v4lrz1o.wasm": "sha256-vnr5Hfk7WLOoo7hCKFqVxppWc+RVvZvgcK8M8Y92DdU=",
