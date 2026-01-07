@@ -21,9 +21,8 @@ Open your browser to the URL shown in the console (typically `http://localhost:5
 
 ### Features
 
-- **Client-Side Execution**: No server required. All chart generation happens instantly in your browser.
+- **Client-Side Execution**: No server required. All chart generation happens in your browser.
 - **Privacy Focused**: Your project data never leaves your device.
-- **Static Hosting**: The app can be deployed to any static file host (GitHub Pages, Netlify, etc.).
 - **Import/Export**: Save and load your project plans as JSON files locally.
 
 ## JSON Specification Format
