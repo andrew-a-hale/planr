@@ -1,0 +1,187 @@
+@page "/"
+@using Planr.Core.Models
+@using Planr.Core.Renderers
+@using System.Text.Json
+@inject IJSRuntime JS
+
+<PageTitle>Planr WASM</PageTitle>
+
+<div class="container mt-4">
+    <h1>Planr WASM Interface</h1>
+    <p class="lead">Create your project plan and generate a Gantt chart instantly.</p>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link text-decoration-none text-dark p-0 fw-bold" type="button" @onclick="ToggleTaskEditor">
+                            Task Editor <span style="font-size: 0.8em">▼</span>
+                        </button>
+                    </h5>
+                    <div class="d-flex align-items-center">
+                        <div class="me-2">
+                             <InputFile OnChange="LoadFile" class="form-control form-control-sm" accept=".json" />
+                        </div>
+
+                        <button type="button" class="btn btn-outline-secondary btn-sm me-2" @onclick="ExportJson">Export JSON</button>
+
+                        <button type="button" class="btn btn-primary btn-sm me-2" @onclick="AddTask">+ Add Task</button>
+                        <button type="button" class="btn btn-success btn-sm" @onclick="GenerateChart">Generate Chart</button>
+                    </div>
+                </div>
+                <div class="@(ShowTaskEditor ? "collapse show" : "collapse")">
+                    <div class="card-body p-0">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Project</th>
+                                    <th>Task Name</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Priority</th>
+                                    <th style="width: 100px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var task in Spec.Tasks)
+                                {
+                                    <tr>
+                                        <td><input type="text" class="form-control form-control-sm" @bind="task.Project" placeholder="Project Name"></td>
+                                        <td><input type="text" class="form-control form-control-sm" @bind="task.Name" placeholder="Task Name"></td>
+                                        <td><input type="date" class="form-control form-control-sm" @bind="task.Start" ></td>
+                                        <td><input type="date" class="form-control form-control-sm" @bind="task.End" ></td>
+                                        <td>
+                                            <select class="form-select form-select-sm" @bind="task.Priority">
+                                                <option value="1">Critical (1)</option>
+                                                <option value="2">High (2)</option>
+                                                <option value="3">Medium (3)</option>
+                                                <option value="4">Low (4)</option>
+                                                <option value="5">Lowest (5)</option>
+                                            </select>
+                                        </td>
+                                        <td><button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => RemoveTask(task)">Remove</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger">@ErrorMessage</div>
+    }
+
+    @if (!string.IsNullOrEmpty(ChartHtml))
+    {
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Chart Preview</h5>
+            </div>
+            <div class="card-body overflow-auto">
+                @((MarkupString)ChartHtml)
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private GanttSpec Spec { get; set; } = new();
+    private string? ChartHtml { get; set; }
+    private string? ErrorMessage { get; set; }
+    private bool ShowTaskEditor { get; set; } = true;
+
+    protected override void OnInitialized()
+    {
+        // Default data
+        Spec.Tasks = new List<GanttTask>
+        {
+            new()
+            {
+                Project = "Project Alpha",
+                Name = "Planning",
+                Start = DateTime.Today,
+                End = DateTime.Today.AddDays(14),
+                Priority = 1,
+            },
+            new()
+            {
+                Project = "Project Alpha",
+                Name = "Execution",
+                Start = DateTime.Today.AddDays(14),
+                End = DateTime.Today.AddDays(28),
+                Priority = 2,
+            },
+        };
+    }
+
+    private void ToggleTaskEditor()
+    {
+        ShowTaskEditor = !ShowTaskEditor;
+    }
+
+    private void AddTask()
+    {
+        Spec.Tasks.Add(new GanttTask
+        {
+            Project = "New Project",
+            Name = "New Task",
+            Start = DateTime.Today,
+            End = DateTime.Today.AddDays(7),
+            Priority = 3
+        });
+    }
+
+    private void RemoveTask(GanttTask task)
+    {
+        Spec.Tasks.Remove(task);
+    }
+
+    private async Task LoadFile(InputFileChangeEventArgs e)
+    {
+        ErrorMessage = null;
+        try
+        {
+            var file = e.File;
+            if (file != null)
+            {
+                using var stream = file.OpenReadStream();
+                var spec = await JsonSerializer.DeserializeAsync<GanttSpec>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (spec != null)
+                {
+                    Spec = spec;
+                    if (Spec.Tasks == null) Spec.Tasks = new List<GanttTask>();
+                    GenerateChart();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error parsing imported JSON: {ex.Message}";
+        }
+    }
+
+    private async Task ExportJson()
+    {
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        var json = JsonSerializer.Serialize(Spec, options);
+        await JS.InvokeVoidAsync("downloadFile", "planr-spec.json", json);
+    }
+
+    private void GenerateChart()
+    {
+        ErrorMessage = null;
+        try
+        {
+            ChartHtml = HtmlGanttRenderer.Render(Spec, partial: true);
+        }
+        catch (Exception ex)
+        {
+             ErrorMessage = $"Error generating chart: {ex.Message}";
+        }
+    }
+}
