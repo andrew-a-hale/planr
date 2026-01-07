@@ -25,10 +25,18 @@ Open your browser to the URL shown in the console (typically `http://localhost:5
 - **Privacy Focused**: Your project data never leaves your device.
 - **Import/Export**: Save and load your project plans as JSON files locally.
 
-## JSON Specification Format
+## Gantt Chart
+
+### JSON Specification Format
 
 ```json
 {
+  "config": {
+    "title": "Project Plan"
+    "labelWidth": 150,
+    "showLegend": true,
+    "containerMaxWidth": 1200,
+  },
   "tasks": [
     {
       "project": "Project Alpha",
@@ -41,10 +49,39 @@ Open your browser to the URL shown in the console (typically `http://localhost:5
 }
 ```
 
-## Priorities
+### Priorities
 
 1. Critical (Red)
 2. High (Orange)
 3. Medium (Yellow)
 4. Low (Blue)
 5. Lowest (Green)
+
+## Effort-Impact Chart
+
+### JSON Specification Format
+
+```json
+{
+  "config": {
+    "title": "Prioritisation"
+    "containerMaxWidth": 1200,
+  },
+  "items": [
+    {
+      "group": "Project Alpha",
+      "ref": 1,
+      "name": "Fix Bug",
+      "impact": 1,
+      "effort": 1
+    },
+    {
+      "group": "Project Beta",
+      "ref": 2,
+      "name": "Optimisation",
+      "impact": 2,
+      "effort": 2
+    }
+  ]
+}
+```
