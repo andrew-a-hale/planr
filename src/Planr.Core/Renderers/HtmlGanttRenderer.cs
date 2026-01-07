@@ -1,5 +1,6 @@
 using Planr.Core.Models;
 using Planr.Core.ViewModels;
+using Planr.Core.Configuration;
 using Scriban;
 
 namespace Planr.Core.Renderers;
@@ -53,6 +54,19 @@ public static class HtmlGanttRenderer
 
         var vm = new GanttViewModel();
 
+        // Populate Legend
+        foreach (var kvp in GanttTheme.PriorityColors)
+        {
+            vm.Legend.Add(new LegendItem
+            {
+                Name = kvp.Key.ToString(),
+                Value = (int)kvp.Key,
+                Color = kvp.Value
+            });
+        }
+        // Ensure sorted by priority value
+        vm.Legend = vm.Legend.OrderBy(x => x.Value).ToList();
+
         // Generate Weeks
         var oneWeekSeconds = 7.0 * 24 * 60 * 60;
         var weekWidthPercent = (oneWeekSeconds / totalDuration) * 100;
@@ -93,6 +107,23 @@ public static class HtmlGanttRenderer
                 var widthPercent = (duration / totalDuration) * 100;
                 var weeks = (task.End - task.Start).TotalDays / 7.0;
 
+                var weekMarks = new List<double>();
+                // Find first Monday strictly after start date
+                var nextMonday = task.Start.AddDays(
+                    ((int)DayOfWeek.Monday - (int)task.Start.DayOfWeek + 7) % 7
+                );
+                if (nextMonday <= task.Start)
+                    nextMonday = nextMonday.AddDays(7);
+
+                while (nextMonday < task.End)
+                {
+                    var markOffset = (nextMonday - task.Start).TotalSeconds;
+                    // Calculate percentage relative to the task width, not total width
+                    var markPercent = (markOffset / duration) * 100;
+                    weekMarks.Add(markPercent);
+                    nextMonday = nextMonday.AddDays(7);
+                }
+
                 projectGroup.Tasks.Add(
                     new TaskViewModel
                     {
@@ -100,8 +131,8 @@ public static class HtmlGanttRenderer
                         Priority = task.Priority,
                         LeftPercent = leftPercent,
                         WidthPercent = widthPercent,
-                        Color = GetPriorityColor(task.Priority),
-                        DurationWeeks = weeks,
+                        Color = GanttTheme.GetColor(task.Priority),
+                        WeekMarks = weekMarks,
                     }
                 );
             }
@@ -134,18 +165,5 @@ public static class HtmlGanttRenderer
 
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
-    }
-
-    private static string GetPriorityColor(int priority)
-    {
-        return priority switch
-        {
-            1 => "#e74c3c", // Critical/Highest (Red)
-            2 => "#e67e22", // High (Orange)
-            3 => "#f1c40f", // Medium (Yellow)
-            4 => "#3498db", // Low (Blue)
-            5 => "#2ecc71", // Lowest (Green)
-            _ => "#95a5a6", // Unknown (Grey)
-        };
     }
 }

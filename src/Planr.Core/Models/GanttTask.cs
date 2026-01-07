@@ -17,5 +17,5 @@ public class GanttTask
     public DateTime End { get; set; }
 
     [JsonPropertyName("priority")]
-    public int Priority { get; set; } = 3;
+    public Priority Priority { get; set; } = Priority.Medium;
 }

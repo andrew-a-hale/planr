@@ -1,5 +1,7 @@
 # Planr
 
+[Live Demo](https://andrew-a-hale.github.io/planr/)
+
 A project planning toolkit running entirely in the browser using Blazor WebAssembly.
 
 ## Architecture
@@ -15,7 +17,7 @@ Run the application locally:
 dotnet run --project src/Planr.Wasm
 ```
 
-Open your browser to the URL shown in the console (typically `http://localhost:5030` or similar).
+Open your browser to the URL shown in the console (typically `http://localhost:5251` or similar).
 
 ### Features
 

@@ -47,17 +47,23 @@
         font-size: 0.75rem; 
         padding: 0 8px; 
     }
+
+    .gantt-task-mark {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background-color: rgba(255, 255, 255, 0.5);
+    }
 </style>
 
 <div class="gantt-container">
     <h1>Project Plan</h1>
     <div class="gantt-legend">
         <strong>Legend</strong>
-        <div class="gantt-legend-item"><span class="gantt-legend-color" style="background-color: #e74c3c"></span> Critical (1)</div>
-        <div class="gantt-legend-item"><span class="gantt-legend-color" style="background-color: #e67e22"></span> High (2)</div>
-        <div class="gantt-legend-item"><span class="gantt-legend-color" style="background-color: #f1c40f"></span> Medium (3)</div>
-        <div class="gantt-legend-item"><span class="gantt-legend-color" style="background-color: #3498db"></span> Low (4)</div>
-        <div class="gantt-legend-item"><span class="gantt-legend-color" style="background-color: #2ecc71"></span> Lowest (5)</div>
+        {{ for item in Legend }}
+        <div class="gantt-legend-item"><span class="gantt-legend-color" style="background-color: {{ item.Color }}"></span> {{ item.Name }}</div>
+        {{ end }}
     </div>
 
     <div class="gantt-header-row">
@@ -79,7 +85,9 @@
             <div class="gantt-task-label">{{ task.Name }}</div>
             <div class="gantt-task-track">
                 <div class="gantt-task-bar" style="left: {{ task.LeftPercent }}%; width: {{ task.WidthPercent }}%; --task-color: {{ task.Color }};">
-                    <span class="gantt-task-dates">Duration: {{ task.DurationWeeks | math.round }} weeks</span>
+                    {{ for mark in task.WeekMarks }}
+                    <div class="gantt-task-mark" style="left: {{ mark }}%"></div>
+                    {{ end }}
                 </div>
             </div>
         </div>

@@ -4,11 +4,11 @@
 @using System.Text.Json
 @inject IJSRuntime JS
 
-<PageTitle>Planr WASM</PageTitle>
+<PageTitle>Gantt</PageTitle>
 
 <div class="container mt-4">
-    <h1>Planr WASM Interface</h1>
-    <p class="lead">Create your project plan and generate a Gantt chart instantly.</p>
+    <h1>Gantt</h1>
+    <p class="lead">Create your project tasks and generate a Gantt chart.</p>
 
     <div class="row">
         <div class="col-md-12">
@@ -53,11 +53,10 @@
                                         <td><input type="date" class="form-control form-control-sm" @bind="task.End" ></td>
                                         <td>
                                             <select class="form-select form-select-sm" @bind="task.Priority">
-                                                <option value="1">Critical (1)</option>
-                                                <option value="2">High (2)</option>
-                                                <option value="3">Medium (3)</option>
-                                                <option value="4">Low (4)</option>
-                                                <option value="5">Lowest (5)</option>
+                                                @foreach (var p in Enum.GetValues<Priority>())
+                                                {
+                                                    <option value="@p">@p</option>
+                                                }
                                             </select>
                                         </td>
                                         <td><button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => RemoveTask(task)">Remove</button></td>
@@ -106,7 +105,7 @@
                 Name = "Planning",
                 Start = DateTime.Today,
                 End = DateTime.Today.AddDays(14),
-                Priority = 1,
+                Priority = Priority.Critical,
             },
             new()
             {
@@ -114,7 +113,7 @@
                 Name = "Execution",
                 Start = DateTime.Today.AddDays(14),
                 End = DateTime.Today.AddDays(28),
-                Priority = 2,
+                Priority = Priority.High,
             },
         };
     }
@@ -132,7 +131,7 @@
             Name = "New Task",
             Start = DateTime.Today,
             End = DateTime.Today.AddDays(7),
-            Priority = 3
+            Priority = Priority.Medium
         });
     }
 
@@ -183,5 +182,6 @@
         {
              ErrorMessage = $"Error generating chart: {ex.Message}";
         }
+        ShowTaskEditor = false;
     }
 }

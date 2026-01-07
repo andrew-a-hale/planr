@@ -26,6 +26,9 @@ jobs:
       - name: Copy .nojekyll
         run: cp .nojekyll release/wwwroot/
 
+      - name: Update base href for GitHub Pages
+        run: sed -i 's/<base href="\/" \/>/<base href="\/planr\/" \/>/g' release/wwwroot/index.html
+
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
