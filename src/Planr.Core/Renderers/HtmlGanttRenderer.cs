@@ -1,14 +1,12 @@
+using Planr.Core.Configuration;
 using Planr.Core.Models;
 using Planr.Core.ViewModels;
-using Planr.Core.Configuration;
 using Scriban;
 
 namespace Planr.Core.Renderers;
 
 public static class HtmlGanttRenderer
 {
-    private const string Name = "gantt_partial.html";
-
     public static string Render(GanttSpec spec, bool partial = false)
     {
         if (spec.Tasks == null || spec.Tasks.Count == 0)
@@ -20,7 +18,7 @@ public static class HtmlGanttRenderer
 
         // Always render partial first
         var partialContent = Template
-            .Parse(GetTemplate(Name))
+            .Parse(GetTemplate("ganttPartial.html"))
             .Render(viewModel, member => member.Name);
 
         if (partial)
@@ -52,17 +50,19 @@ public static class HtmlGanttRenderer
         if (totalDuration <= 0)
             totalDuration = 1; // Prevent division by zero
 
-        var vm = new GanttViewModel();
+        var vm = new GanttViewModel { Config = spec.Config ?? new GanttConfig() };
 
         // Populate Legend
         foreach (var kvp in GanttTheme.PriorityColors)
         {
-            vm.Legend.Add(new LegendItem
-            {
-                Name = kvp.Key.ToString(),
-                Value = (int)kvp.Key,
-                Color = kvp.Value
-            });
+            vm.Legend.Add(
+                new LegendItem
+                {
+                    Name = kvp.Key.ToString(),
+                    Value = (int)kvp.Key,
+                    Color = kvp.Value,
+                }
+            );
         }
         // Ensure sorted by priority value
         vm.Legend = vm.Legend.OrderBy(x => x.Value).ToList();

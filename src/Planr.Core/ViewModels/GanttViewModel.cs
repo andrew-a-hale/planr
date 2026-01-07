@@ -7,6 +7,7 @@ public class GanttViewModel
     public List<WeekMarker> Weeks { get; set; } = new();
     public List<ProjectGroup> ProjectGroups { get; set; } = new();
     public List<LegendItem> Legend { get; set; } = new();
+    public GanttConfig Config { get; set; } = new();
 }
 
 public class LegendItem
