@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "Planr.Wasm",
   "resources": {
-    "hash": "sha256-iBPvbwpWKEG93rpZyA+jFoHcEJQn8NSg5XaaeJxa0b0=",
+    "hash": "sha256-M+cITKdo08O7QqbCxCiDAfGX5FgvUJ0/b5yqc83C2QM=",
     "fingerprinting": {
       "Microsoft.AspNetCore.Components.ag8nexeulx.wasm": "Microsoft.AspNetCore.Components.wasm",
       "Microsoft.AspNetCore.Components.Web.xbjt2g1ki0.wasm": "Microsoft.AspNetCore.Components.Web.wasm",
@@ -18,8 +18,8 @@
       "Microsoft.Extensions.Primitives.wgkaqcaqxl.wasm": "Microsoft.Extensions.Primitives.wasm",
       "Microsoft.JSInterop.dah699e81m.wasm": "Microsoft.JSInterop.wasm",
       "Microsoft.JSInterop.WebAssembly.dnug9e66zg.wasm": "Microsoft.JSInterop.WebAssembly.wasm",
-      "Planr.Core.s6mdg76y49.wasm": "Planr.Core.wasm",
-      "Planr.Wasm.p9jf3wxtf3.wasm": "Planr.Wasm.wasm",
+      "Planr.Core.nbl97ep9cr.wasm": "Planr.Core.wasm",
+      "Planr.Wasm.jyo23lk0x5.wasm": "Planr.Wasm.wasm",
       "Scriban.kys4rrzc6e.wasm": "Scriban.wasm",
       "System.Collections.fk94ey3js0.wasm": "System.Collections.wasm",
       "System.Collections.Concurrent.u92v4lrz1o.wasm": "System.Collections.Concurrent.wasm",
@@ -89,8 +89,8 @@
       "Microsoft.Extensions.Primitives.wgkaqcaqxl.wasm": "sha256-4E9QgG80eMrFZtU2cQ3IdWiSy9K4odn43sch89M9Y9Y=",
       "Microsoft.JSInterop.dah699e81m.wasm": "sha256-BeoInvV29Po15++LcW0qxYq9+OUaTotr6sJXAFilBVU=",
       "Microsoft.JSInterop.WebAssembly.dnug9e66zg.wasm": "sha256-1391UuW9RnaY9v+RXWFFkaN+3zIkFWK6F/i2rkesTxo=",
-      "Planr.Core.s6mdg76y49.wasm": "sha256-bOIqzwHdqgmxDi4qMtdoKlgOwWNcJaL5Iub1CSGQ9js=",
-      "Planr.Wasm.p9jf3wxtf3.wasm": "sha256-TcIl0j3WjaNZbyrOiiBAvWn0Ve+ntktcgFQWy12ipMQ=",
+      "Planr.Core.nbl97ep9cr.wasm": "sha256-zfy/j1/r2G+9zHnM2XMbaJ6WDjdT0jdsm+FuaLRGbKs=",
+      "Planr.Wasm.jyo23lk0x5.wasm": "sha256-JX4fKI53S7aFMWpKNA9B/oiLJ9l1JhmHW3QPPex2XTk=",
       "Scriban.kys4rrzc6e.wasm": "sha256-ZB0hQzrMXtuSNl8bVOeyyqGahSBbwXwSJ7rilSCpCG4=",
       "System.Collections.fk94ey3js0.wasm": "sha256-b4+b66nR7GVL+5/nwO4XsNfEO9ir9iNjur4MTlji0Zk=",
       "System.Collections.Concurrent.u92v4lrz1o.wasm": "sha256-vnr5Hfk7WLOoo7hCKFqVxppWc+RVvZvgcK8M8Y92DdU=",
