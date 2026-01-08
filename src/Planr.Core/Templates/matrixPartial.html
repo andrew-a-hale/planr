@@ -1,7 +1,10 @@
 <style>{{ Css }}</style>
 
-<div class="impact-effort-container" style="--container-max-width: {{ Config.ContainerMaxWidthCss }};">
-    <h1>{{ Config.Title }}</h1>
+<div class="impact-effort-chart">
+  <!-- Chart Title -->
+  <h1>{{ Config.Title }}</h1>
+
+  <div class="impact-effort-container" style="--container-max-width: {{ Config.ContainerMaxWidthCss }};">
     <div class="grid-lines">
         <div class="grid-line-h" style="top: 33.333%;"></div>
         <div class="grid-line-h" style="top: 66.667%;"></div>
@@ -18,19 +21,20 @@
     {{ end }}
     
     <!-- Axis Labels -->
-    <!-- X-axis labels (Effort) -->
-    <div class="axis-label" style="left: 16.667%; top: 100%; margin-top: 5px;">Low</div>
-    <div class="axis-label" style="left: 50%; top: 100%; margin-top: 5px;">Medium</div>
-    <div class="axis-label" style="left: 83.333%; top: 100%; margin-top: 5px;">High</div>
+    <!-- X-axis labels (Effort) - positioned just inside grid lines -->
+    <div class="axis-label" style="left: 30%; top: calc(100% - 5px);">Low</div>
+    <div class="axis-label" style="left: 61%; top: calc(100% - 5px);">Medium</div>
+    <div class="axis-label" style="left: 96%; top: calc(100% - 5px);">High</div>
     
-    <!-- Y-axis labels (Impact) - Rotated -->
-    <div class="axis-label axis-label-y" style="left: 5px; top: 16.667%; transform-origin: left center;">High</div>
-    <div class="axis-label axis-label-y" style="left: 5px; top: 50%; transform-origin: left center;">Medium</div>
-    <div class="axis-label axis-label-y" style="left: 5px; top: 83.333%; transform-origin: left center;">Low</div>
+    <!-- Y-axis labels (Impact) - positioned just inside grid lines -->
+    <div class="axis-label" style="left: 20px; top: 2%;">High</div>
+    <div class="axis-label" style="left: 30px; top: 35%;">Medium</div>
+    <div class="axis-label" style="left: 20px; top: 68.5%;">Low</div>
     
-    <!-- Axis Titles -->
-    <div class="axis-title" style="left: 50%; transform: translateX(-50%); top: calc(100% + 25px);">Effort</div>
-    <div class="axis-title axis-label-y" style="left: 5px; top: 50%; transform: rotate(-90deg) translateX(-100%);">Impact</div>
+    <!-- Axis Titles - positioned outside the grid -->
+    <div class="axis-title" style="left: 50%; transform: translateX(-50%); bottom: -40px; top: auto;">Effort</div>
+    <div class="axis-title" style="left: -40px; top: 53%; transform: rotate(-90deg) translate(50%, -50%); bottom: auto;">Impact</div>
+  </div>
 </div>
 
 <!-- References Table -->
