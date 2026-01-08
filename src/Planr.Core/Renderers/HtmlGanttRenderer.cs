@@ -1,6 +1,6 @@
 using Planr.Core.Configuration;
-using Planr.Core.Models;
-using Planr.Core.ViewModels;
+using Planr.Core.Models.Gantt;
+using Planr.Core.ViewModels.Gantt;
 using Scriban;
 
 namespace Planr.Core.Renderers;
@@ -16,22 +16,38 @@ public static class HtmlGanttRenderer
 
         var viewModel = BuildViewModel(spec);
 
-        // Always render partial first
-        var partialContent = Template
+        // Get shared CSS content
+        var cssContent = GetTemplate("core-charts.css");
+
+        // Always render partial first with CSS included
+        var partialContent = global::Scriban.Template
             .Parse(GetTemplate("ganttPartial.html"))
-            .Render(viewModel, member => member.Name);
+            .Render(
+                new
+                {
+                    Config = viewModel.Config,
+                    Css = cssContent,
+                    Legend = viewModel.Legend,
+                    Weeks = viewModel.Weeks,
+                    ProjectGroups = viewModel.ProjectGroups,
+                },
+                member => member.Name
+            );
 
         if (partial)
         {
             return partialContent;
         }
 
-        // Wrap in full layout
-        var layoutTemplate = Template.Parse(GetTemplate("gantt.html"));
-        return layoutTemplate.Render(new { body = partialContent }, member => member.Name);
+        // Wrap in full layout with CSS included
+        var layoutTemplate = global::Scriban.Template.Parse(GetTemplate("gantt.html"));
+        return layoutTemplate.Render(
+            new { body = partialContent, Css = cssContent },
+            member => member.Name
+        );
     }
 
-    private static GanttViewModel BuildViewModel(GanttSpec spec)
+    private static ViewModels.Gantt.GanttViewModel BuildViewModel(Models.Gantt.GanttSpec spec)
     {
         // Calculate global timeline
         var minDate = spec.Tasks.Min(t => t.Start);
@@ -50,13 +66,16 @@ public static class HtmlGanttRenderer
         if (totalDuration <= 0)
             totalDuration = 1; // Prevent division by zero
 
-        var vm = new GanttViewModel { Config = spec.Config ?? new GanttConfig() };
+        var vm = new ViewModels.Gantt.GanttViewModel
+        {
+            Config = spec.Config ?? new Models.Gantt.GanttConfig(),
+        };
 
         // Populate Legend
         foreach (var kvp in GanttTheme.PriorityColors)
         {
             vm.Legend.Add(
-                new LegendItem
+                new ViewModels.Gantt.LegendItem
                 {
                     Name = kvp.Key.ToString(),
                     Value = (int)kvp.Key,
@@ -80,7 +99,7 @@ public static class HtmlGanttRenderer
                 var leftPercent = (offset / totalDuration) * 100;
 
                 vm.Weeks.Add(
-                    new WeekMarker
+                    new ViewModels.Gantt.WeekMarker
                     {
                         LeftPercent = leftPercent,
                         WidthPercent = weekWidthPercent,
@@ -96,7 +115,7 @@ public static class HtmlGanttRenderer
 
         foreach (var group in groupedTasks)
         {
-            var projectGroup = new ProjectGroup { Name = group.Key };
+            var projectGroup = new ViewModels.Gantt.ProjectGroup { Name = group.Key };
 
             foreach (var task in group.OrderBy(t => t.Start))
             {
@@ -125,7 +144,7 @@ public static class HtmlGanttRenderer
                 }
 
                 projectGroup.Tasks.Add(
-                    new TaskViewModel
+                    new ViewModels.Gantt.TaskViewModel
                     {
                         Name = task.Name,
                         Priority = task.Priority,
@@ -167,3 +186,4 @@ public static class HtmlGanttRenderer
         return reader.ReadToEnd();
     }
 }
+

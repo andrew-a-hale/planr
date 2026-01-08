@@ -1,69 +1,15 @@
-<style>
-    .gantt-container { max-width: {{ Config.ContainerMaxWidthCss }}; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .gantt-container h1 { margin-bottom: 20px; color: #2c3e50; }
-    
-    .gantt-legend { display: flex; gap: 15px; margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 4px; border: 1px solid #eee; }
-    .gantt-legend-item { display: flex; align-items: center; font-size: 0.9rem; color: #555; }
-    .gantt-legend-color { width: 12px; height: 12px; border-radius: 2px; margin-right: 6px; }
+<style>{{ Css }}</style>
 
-    .gantt-container h2 { margin-top: 20px; margin-bottom: 10px; font-size: 1.2rem; color: #555; border-bottom: 2px solid #eee; padding-bottom: 5px; }
-    
-    .gantt-header-row { display: flex; align-items: flex-end; margin-bottom: 10px; height: 30px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
-    .gantt-header-label { width: {{ Config.LabelWidth }}px; padding-right: 15px; }
-    .gantt-header-track { flex-grow: 1; height: 100%; position: relative; overflow: hidden; }
-    
-    .gantt-week-marker { 
-        position: absolute; 
-        bottom: 0; 
-        font-size: 0.8rem; 
-        color: #888; 
-        border-right: 1px solid #ccc; 
-        height: 20px;
-        line-height: 20px;
-        text-align: center;
-        white-space: nowrap;
-    }
-
-    .gantt-task-row { display: flex; margin-bottom: 8px; min-height: 30px; }
-    .gantt-task-label { width: {{ Config.LabelWidth }}px; padding-right: 15px; text-align: right; font-weight: 500; padding-top: 4px; }
-    .gantt-task-track { flex-grow: 1; position: relative; background: #f9f9f9; border-radius: 4px; border: 1px solid #eee; }
-    
-    .gantt-task-bar { 
-        position: absolute; 
-        height: 24px; 
-        top: 50%; 
-        margin-top: -12px;
-        background-color: var(--task-color, #3498db); 
-        border-radius: 4px; 
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-        white-space: nowrap;
-    }
-    
-    .gantt-task-dates { 
-        color: white; 
-        font-size: 0.75rem; 
-        padding: 0 8px; 
-    }
-
-    .gantt-task-mark {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 1px;
-        background-color: rgba(255, 255, 255, 0.5);
-    }
-</style>
-
-<div class="gantt-container">
+<div class="chart-container" style="--container-max-width: {{ Config.ContainerMaxWidthCss }}; --label-width: {{ Config.LabelWidth }}px;">
     <h1>{{ Config.Title }}</h1>
     {{ if Config.ShowLegend }}
-    <div class="gantt-legend">
+    <div class="chart-legend">
         <strong>Legend</strong>
         {{ for item in Legend }}
-        <div class="gantt-legend-item"><span class="gantt-legend-color" style="background-color: {{ item.Color }}"></span> {{ item.Name }}</div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: {{ item.Color }};"></span> 
+            {{ item.Name }}
+        </div>
         {{ end }}
     </div>
     {{ end }}

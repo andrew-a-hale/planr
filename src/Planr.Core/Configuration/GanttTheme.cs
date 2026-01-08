@@ -1,4 +1,4 @@
-using Planr.Core.Models;
+using Planr.Core.Models.Gantt;
 
 namespace Planr.Core.Configuration;
 

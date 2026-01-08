@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Planr.Core.Models;
+namespace Planr.Core.Models.Gantt;
 
 public class GanttSpec
 {
@@ -9,6 +9,24 @@ public class GanttSpec
 
     [JsonPropertyName("tasks")]
     public List<GanttTask> Tasks { get; set; } = new();
+}
+
+public class GanttTask
+{
+    [JsonPropertyName("project")]
+    public string Project { get; set; } = string.Empty;
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("start")]
+    public DateTime Start { get; set; }
+
+    [JsonPropertyName("end")]
+    public DateTime End { get; set; }
+
+    [JsonPropertyName("priority")]
+    public Priority Priority { get; set; } = Priority.Medium;
 }
 
 public class GanttConfig
@@ -37,3 +55,13 @@ public class GanttConfig
             _ => "1200px",
         };
 }
+
+public enum Priority
+{
+    Critical = 1,
+    High = 2,
+    Medium = 3,
+    Low = 4,
+    Lowest = 5,
+}
+
