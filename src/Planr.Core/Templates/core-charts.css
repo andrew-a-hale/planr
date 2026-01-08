@@ -56,7 +56,7 @@
 /* Base chart styles */
 .chart-container {
   font-family: var(--font-family);
-  line-height: 1.5;
+  line-height: 1;
   color: var(--gantt-text);
   background: white;
   border-radius: var(--border-radius-lg);
@@ -255,9 +255,8 @@
   border: 2px solid var(--impact-effort-border);
   border-radius: var(--border-radius-lg);
   overflow: visible;
-  max-width: calc(var(--container-max-width, 1200px) - 120px);
+  max-width: var(--container-max-width, 1200px);
   margin: 0 auto 80px auto;
-  padding: 0 60px 0 60px;
 }
 
 .grid-lines {
@@ -352,8 +351,8 @@
   font-size: var(--font-size-sm);
   font-weight: 200;
   color: var(--impact-effort-secondary);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  transform: translate(-50%, -50%);
+  padding: var(--spacing-sm) var(--spacing-sm);
+  line-height: 1;
 }
 
 .axis-title {
@@ -364,7 +363,7 @@
   padding: var(--spacing-sm) var(--spacing-md);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  transform: translate(-50%, -50%);
+  line-height: 1;
 }
 
 .references-table {

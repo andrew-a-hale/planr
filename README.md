@@ -69,14 +69,14 @@ Open your browser to the URL shown in the console (typically `http://localhost:5
   },
   "items": [
     {
-      "group": "Project Alpha",
+      "category": "Project Alpha",
       "ref": 1,
       "name": "Fix Bug",
       "impact": 1,
       "effort": 1
     },
     {
-      "group": "Project Beta",
+      "category": "Project Beta",
       "ref": 2,
       "name": "Optimisation",
       "impact": 2,
