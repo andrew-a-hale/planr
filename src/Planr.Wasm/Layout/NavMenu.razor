@@ -1,34 +1,23 @@
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">planr</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
     </div>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+<div class="nav-scrollable">
     <nav class="nav flex-column">
-        <div class="nav-item px-3">
+        <div class="nav-item">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Gantt Chart
+                <span class="bi bi-bar-chart-fill-nav-menu" aria-hidden="true"></span>
+                    <span class="nav-text">Gantt Chart</span>
             </NavLink>
         </div>
-        <div class="nav-item px-3">
+        <div class="nav-item">
             <NavLink class="nav-link" href="impact-effort">
-                <span class="bi bi-grid-3x3-gap-fill-nav-menu" aria-hidden="true"></span> Impact-Effort Grid
+                <span class="bi bi-check2-square-nav-menu" aria-hidden="true"></span>
+                    <span class="nav-text">Impact-Effort Matrix</span>
             </NavLink>
         </div>
     </nav>
 </div>
 
-@code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-}

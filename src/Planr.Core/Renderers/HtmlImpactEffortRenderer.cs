@@ -20,8 +20,8 @@ public static class HtmlImpactEffortRenderer
         var cssContent = GetTemplate("core-charts.css");
 
         // Always render partial first with CSS included
-        var partialContent = global::Scriban.Template
-            .Parse(GetTemplate("gridPartial.html"))
+        var partialContent = global::Scriban
+            .Template.Parse(GetTemplate("matrixPartial.html"))
             .Render(
                 new
                 {
@@ -38,7 +38,7 @@ public static class HtmlImpactEffortRenderer
         }
 
         // Wrap in full layout with CSS included
-        var layoutTemplate = global::Scriban.Template.Parse(GetTemplate("grid.html"));
+        var layoutTemplate = global::Scriban.Template.Parse(GetTemplate("matrix.html"));
         return layoutTemplate.Render(
             new { body = partialContent, Css = cssContent },
             member => member.Name
@@ -57,109 +57,76 @@ public static class HtmlImpactEffortRenderer
         // Get unique categories
         vm.Categories = spec.Tasks.Select(t => t.Category).Distinct().OrderBy(c => c).ToList();
 
-        // Build quadrants
-        var quadrantNames = new Dictionary<(int row, int col), string>
-        {
-            { (0, 0), "Fill-ins" }, // Low Impact, Low Effort
-            { (0, 1), "Fill-ins" }, // Low Impact, Medium Effort
-            { (0, 2), "Thankless Tasks" }, // Low Impact, High Effort
-            { (1, 0), "Fill-ins" }, // Medium Impact, Low Effort
-            { (1, 1), "Thankless Tasks" }, // Medium Impact, Medium Effort
-            { (1, 2), "Thankless Tasks" }, // Medium Impact, High Effort
-            { (2, 0), "Quick Wins" }, // High Impact, Low Effort
-            { (2, 1), "Major Projects" }, // High Impact, Medium Effort
-            { (2, 2), "Major Projects" }, // High Impact, High Effort
-        };
-
         for (int row = 0; row < 3; row++)
         {
             for (int col = 0; col < 3; col++)
             {
-                var quadrantName = quadrantNames[(row, col)];
-                var quadrant = new ViewModels.ImpactEffort.GridQuadrant
+                var quadrant = new ViewModels.ImpactEffort.MatrixQuadrant
                 {
-                    Name = quadrantName,
                     Row = row,
                     Col = col,
                     LeftPercent = col * 33.333,
                     TopPercent = row * 33.333,
-                    Color = ImpactEffortTheme.GetQuadrantColor(quadrantName),
-                };
-
-                // Add description
-                quadrant.Description = quadrantName switch
-                {
-                    "Quick Wins" => "High Impact, Low Effort",
-                    "Major Projects" => "High Impact, High Effort",
-                    "Fill-ins" => "Low Impact, Low Effort",
-                    "Thankless Tasks" => "Low Impact, High Effort",
-                    _ => "",
                 };
 
                 vm.Quadrants.Add(quadrant);
             }
         }
 
-        // Process tasks
+        // Group tasks by quadrant first
+        var tasksByQuadrant =
+            new Dictionary<(int row, int col), List<Models.ImpactEffort.ImpactEffortTask>>();
+
         foreach (var task in spec.Tasks)
         {
             var (row, col) = ViewModels.ImpactEffort.QuadrantHelper.GetQuadrantPosition(
                 task.Impact,
                 task.Effort
             );
-            var (left, top) = ViewModels.ImpactEffort.QuadrantHelper.GetTaskPosition(
-                task.Impact,
-                task.Effort
-            );
 
-            var gridTask = new ViewModels.ImpactEffort.GridTask
+            var key = (row, col);
+            if (!tasksByQuadrant.ContainsKey(key))
+                tasksByQuadrant[key] = new List<Models.ImpactEffort.ImpactEffortTask>();
+
+            tasksByQuadrant[key].Add(task);
+        }
+
+        // Process tasks with quadrant-aware positioning
+        foreach (var (quadrantKey, quadrantTasks) in tasksByQuadrant)
+        {
+            var (row, col) = quadrantKey;
+
+            for (int i = 0; i < quadrantTasks.Count; i++)
             {
-                Ref = task.Ref,
-                Name = task.Name,
-                Category = task.Category,
-                Impact = task.Impact,
-                Effort = task.Effort,
-                LeftPercent = left,
-                TopPercent = top,
-                QuadrantColor = ImpactEffortTheme.GetQuadrantColor(
-                    ViewModels.ImpactEffort.QuadrantHelper.GetQuadrantName(task.Impact, task.Effort)
-                ),
-                CategoryColor = ImpactEffortTheme.GetCategoryColor(task.Category, vm.Categories),
-            };
+                var task = quadrantTasks[i];
+                var (left, top) = ViewModels.ImpactEffort.QuadrantHelper.GetTaskPosition(
+                    task.Impact,
+                    task.Effort,
+                    i,
+                    quadrantTasks.Count
+                );
 
-            vm.Tasks.Add(gridTask);
-
-            // Add to corresponding quadrant
-            var quadrant = vm.Quadrants.FirstOrDefault(q => q.Row == row && q.Col == col);
-            quadrant?.Tasks.Add(gridTask);
-        }
-
-        // Build legend
-        var quadrantGroups = vm.Quadrants.GroupBy(q => q.Name).Select(g => g.First());
-        foreach (var quadrant in quadrantGroups)
-        {
-            vm.Legend.Add(
-                new ViewModels.ImpactEffort.LegendItem
+                var matrixTask = new ViewModels.ImpactEffort.MatrixTask
                 {
-                    Name = $"{quadrant.Name} ({quadrant.Description})",
-                    Color = quadrant.Color,
-                    Type = "quadrant",
-                }
-            );
-        }
+                    Ref = task.Ref,
+                    Name = task.Name,
+                    Category = task.Category,
+                    Impact = task.Impact,
+                    Effort = task.Effort,
+                    LeftPercent = left,
+                    TopPercent = top,
+                    CategoryColor = ImpactEffortTheme.GetCategoryColor(
+                        task.Category,
+                        vm.Categories
+                    ),
+                };
 
-        // Add category colors to legend
-        for (int i = 0; i < vm.Categories.Count; i++)
-        {
-            var category = vm.Categories[i];
-            vm.Legend.Add(
-                new ViewModels.ImpactEffort.LegendItem
-                {
-                    Name = category,
-                    Color = ImpactEffortTheme.GetCategoryColor(category, vm.Categories),
-                    Type = "category",
-                }
-            );
+                vm.Tasks.Add(matrixTask);
+
+                // Add to corresponding quadrant
+                var quadrant = vm.Quadrants.FirstOrDefault(q => q.Row == row && q.Col == col);
+                quadrant?.Tasks.Add(matrixTask);
+            }
         }
 
         return vm;
@@ -173,7 +140,7 @@ public static class HtmlImpactEffortRenderer
         // Resource name pattern: DefaultNamespace.Folders.Filename
         // Project Namespace: Planr.Core
         // Folder: Templates
-        // File: grid.html
+        // File: matrix.html
         var resourceName = $"Planr.Core.Templates.{name}";
 
         using var stream = assembly.GetManifestResourceStream(resourceName);
@@ -189,4 +156,3 @@ public static class HtmlImpactEffortRenderer
         return reader.ReadToEnd();
     }
 }
-

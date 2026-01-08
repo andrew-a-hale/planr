@@ -4,26 +4,22 @@ namespace Planr.Core.ViewModels.ImpactEffort;
 
 public class ImpactEffortViewModel
 {
-    public List<GridQuadrant> Quadrants { get; set; } = new();
-    public List<GridTask> Tasks { get; set; } = new();
-    public List<LegendItem> Legend { get; set; } = new();
+    public List<MatrixQuadrant> Quadrants { get; set; } = new();
+    public List<MatrixTask> Tasks { get; set; } = new();
     public ImpactEffortConfig Config { get; set; } = new();
     public List<string> Categories { get; set; } = new();
 }
 
-public class GridQuadrant
+public class MatrixQuadrant
 {
-    public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public string Color { get; set; } = string.Empty;
     public int Row { get; set; }
     public int Col { get; set; }
     public double LeftPercent { get; set; }
     public double TopPercent { get; set; }
-    public List<GridTask> Tasks { get; set; } = new();
+    public List<MatrixTask> Tasks { get; set; } = new();
 }
 
-public class GridTask
+public class MatrixTask
 {
     public string Ref { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
@@ -32,108 +28,90 @@ public class GridTask
     public EffortLevel Effort { get; set; }
     public double LeftPercent { get; set; }
     public double TopPercent { get; set; }
-    public string QuadrantColor { get; set; } = string.Empty;
     public string CategoryColor { get; set; } = string.Empty;
-}
-
-public class LegendItem
-{
-    public string Name { get; set; } = string.Empty;
-    public string Color { get; set; } = string.Empty;
-    public string Type { get; set; } = string.Empty; // "quadrant" or "category"
 }
 
 public static class QuadrantHelper
 {
     public static (int row, int col) GetQuadrantPosition(ImpactLevel impact, EffortLevel effort)
     {
-        // Grid: 3x3 with (0,0) at top-left
-        // Row 0: Low Impact, Row 1: Medium Impact, Row 2: High Impact
+        // Matrix: 3x3 with (0,0) at top-left
+        // Row 0: High Impact, Row 1: Medium Impact, Row 2: Low Impact (inverted for standard quadrant layout)
         // Col 0: Low Effort, Col 1: Medium Effort, Col 2: High Effort
-        
+
         int row = impact switch
         {
-            ImpactLevel.Low => 0,
-            ImpactLevel.Medium => 1,
-            ImpactLevel.High => 2,
-            _ => 1
+            ImpactLevel.High => 0, // Top row
+            ImpactLevel.Medium => 1, // Middle row
+            ImpactLevel.Low => 2, // Bottom row
+            _ => 1,
         };
-        
+
         int col = effort switch
         {
             EffortLevel.Low => 0,
             EffortLevel.Medium => 1,
             EffortLevel.High => 2,
-            _ => 1
+            _ => 1,
         };
-        
+
         return (row, col);
     }
 
-    public static string GetQuadrantName(int row, int col)
+    public static (double left, double top) GetTaskPosition(
+        ImpactLevel impact,
+        EffortLevel effort,
+        int taskIndexInQuadrant = 0,
+        int totalTasksInQuadrant = 1
+    )
     {
-        return (row, col) switch
-        {
-            (0, 0) => "Low Priority",
-            (0, 1) => "Low Priority", 
-            (0, 2) => "Thankless Tasks",
-            (1, 0) => "Fill-ins",
-            (1, 1) => "Thankless Tasks",
-            (1, 2) => "Thankless Tasks",
-            (2, 0) => "Quick Wins",
-            (2, 1) => "Major Projects",
-            (2, 2) => "Major Projects",
-            _ => "Unknown"
-        };
-    }
+        double quadrantSize = 33.33;
+        double halfQuadrantSize = quadrantSize / 2;
 
-    public static string GetQuadrantName(ImpactLevel impact, EffortLevel effort)
-    {
-        if (impact == ImpactLevel.High && effort == EffortLevel.Low)
-            return "Quick Wins";
-        if (impact == ImpactLevel.High && effort == EffortLevel.Medium)
-            return "Major Projects";
-        if (impact == ImpactLevel.High && effort == EffortLevel.High)
-            return "Major Projects";
-        if (impact == ImpactLevel.Medium && effort == EffortLevel.Low)
-            return "Fill-ins";
-        if (impact == ImpactLevel.Medium && effort == EffortLevel.Medium)
-            return "Thankless Tasks";
-        if (impact == ImpactLevel.Medium && effort == EffortLevel.High)
-            return "Thankless Tasks";
-        if (impact == ImpactLevel.Low && effort == EffortLevel.Low)
-            return "Low Priority";
-        if (impact == ImpactLevel.Low && effort == EffortLevel.Medium)
-            return "Low Priority";
-        if (impact == ImpactLevel.Low && effort == EffortLevel.High)
-            return "Thankless Tasks";
-            
-        return "Unknown";
-    }
+        // Base position for each quadrant (center of each 3x3 cell)
+        double baseLeft = effort switch
+        {
+            EffortLevel.Low => 0,
+            EffortLevel.Medium => quadrantSize,
+            EffortLevel.High => 2 * quadrantSize,
+            _ => quadrantSize,
+        };
 
-    public static (double left, double top) GetTaskPosition(ImpactLevel impact, EffortLevel effort)
-    {
-        // Position task in center of each 3x3 cell
-        // Each cell is 33.33% of container
-        // Add 16.67% (half cell) to center within the cell
-        // Add small random offset to avoid overlap
-        
-        double left = effort switch
+        double baseTop = impact switch
         {
-            EffortLevel.Low => 16.67,
-            EffortLevel.Medium => 50.00,
-            EffortLevel.High => 83.33,
-            _ => 50.00
+            ImpactLevel.High => 0, // Top row (inverted)
+            ImpactLevel.Medium => quadrantSize, // Middle row
+            ImpactLevel.Low => 2 * quadrantSize, // Bottom row (inverted)
+            _ => quadrantSize,
         };
-        
-        double top = impact switch
+
+        // If only one task in quadrant, return center position
+        if (totalTasksInQuadrant == 1)
         {
-            ImpactLevel.Low => 16.67,
-            ImpactLevel.Medium => 50.00,
-            ImpactLevel.High => 83.33,
-            _ => 50.00
-        };
-        
-        return (left, top);
+            return (baseLeft + halfQuadrantSize, baseTop + halfQuadrantSize);
+        }
+
+        // Distribute tasks within quadrant to prevent overlap
+        // Create a grid within each quadrant to position tasks
+        const double taskRadius = 2.5; // Task size as percentage (40px / 600px * 100)
+
+        // Calculate available space within quadrant (with padding)
+        double colsPerQuadrant = Math.Ceiling(Math.Sqrt(totalTasksInQuadrant));
+        double rowsPerQuadrant = Math.Ceiling((double)totalTasksInQuadrant / colsPerQuadrant);
+
+        int row = (taskIndexInQuadrant / (int)colsPerQuadrant) + 1;
+        int col = (taskIndexInQuadrant % (int)colsPerQuadrant) + 1;
+
+        double offsetX = col * quadrantSize / (colsPerQuadrant + 1);
+        double offsetY = row * quadrantSize / (rowsPerQuadrant + 1);
+
+        double finalLeft = baseLeft + offsetX;
+        double finalTop = baseTop + offsetY;
+
+        // Ensure tasks stay within bounds
+        finalLeft = Math.Max(taskRadius, Math.Min(100 - taskRadius, finalLeft));
+        finalTop = Math.Max(taskRadius, Math.Min(100 - taskRadius, finalTop));
+
+        return (finalLeft, finalTop);
     }
 }

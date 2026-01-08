@@ -5,7 +5,7 @@
 @using System.Text.Json
 @inject IJSRuntime JS
 
-<PageTitle>Impact-Effort Grid</PageTitle>
+<PageTitle>Impact-Effort Matrix</PageTitle>
 
 <div class="container mt-4">
     <h1>Impact-Effort Matrix</h1>
@@ -45,7 +45,7 @@
                                 @foreach (var task in Spec.Tasks)
                                 {
                                     <tr>
-                                        <td><input type="text" class="form-control form-control-sm" @bind="task.Ref" placeholder="REF"></td>
+                                        <td><input type="text" class="form-control form-control-sm" @bind="task.Ref" placeholder="REF" maxlength="2" style="text-transform: uppercase; font-weight: bold;"></td>
                                         <td><input type="text" class="form-control form-control-sm" @bind="task.Name" placeholder="Task Name"></td>
                                         <td><input type="text" class="form-control form-control-sm" @bind="task.Category" placeholder="Category"></td>
                                         <td>
@@ -97,32 +97,6 @@
                                     }
                                 </select>
                             </div>
-                            <div class="col-md-2 d-flex align-items-end">
-                                <div class="form-check mb-1">
-                                    <input class="form-check-input" type="checkbox" id="showGridCheck" @bind="Spec.Config.ShowGrid">
-                                    <label class="form-check-label small" for="showGridCheck">
-                                        Show Grid
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-3 d-flex align-items-end">
-                                <div class="form-check mb-1">
-                                    <input class="form-check-input" type="checkbox" id="showQuadrantLabelsCheck" @bind="Spec.Config.ShowQuadrantLabels">
-                                    <label class="form-check-label small" for="showQuadrantLabelsCheck">
-                                        Show Quadrant Labels
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row g-3 mt-2">
-                            <div class="col-md-3">
-                                <div class="form-check mb-1">
-                                    <input class="form-check-input" type="checkbox" id="showLegendCheck" @bind="Spec.Config.ShowLegend">
-                                    <label class="form-check-label small" for="showLegendCheck">
-                                        Show Legend
-                                    </label>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -167,7 +141,7 @@
         {
             new()
             {
-                Ref = "TASK001",
+                Ref = "01",
                 Name = "User Authentication",
                 Category = "Security",
                 Impact = ImpactLevel.High,
@@ -175,7 +149,7 @@
             },
             new()
             {
-                Ref = "TASK002", 
+                Ref = "02", 
                 Name = "Password Reset Feature",
                 Category = "Security",
                 Impact = ImpactLevel.High,
@@ -183,7 +157,7 @@
             },
             new()
             {
-                Ref = "TASK003",
+                Ref = "03",
                 Name = "Bug Fixes",
                 Category = "Maintenance",
                 Impact = ImpactLevel.Medium,
@@ -191,7 +165,7 @@
             },
             new()
             {
-                Ref = "TASK004",
+                Ref = "04",
                 Name = "API Documentation",
                 Category = "Documentation",
                 Impact = ImpactLevel.Medium,
@@ -222,9 +196,10 @@
 
     private void AddTask()
     {
+        var nextNumber = (Spec.Tasks.Count + 1) % 100; // Cycle through 00-99
         Spec.Tasks.Add(new ImpactEffortTask
         {
-            Ref = $"TASK{Spec.Tasks.Count + 1:D3}",
+            Ref = $"{nextNumber:D2}",
             Name = "New Task",
             Category = "General",
             Impact = ImpactLevel.Medium,
@@ -249,6 +224,19 @@
                 var spec = await JsonSerializer.DeserializeAsync<ImpactEffortSpec>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 if (spec != null)
                 {
+                    // Validate and format all references to be exactly 2 characters
+                    foreach (var task in spec.Tasks)
+                    {
+                        if (string.IsNullOrEmpty(task.Ref))
+                            task.Ref = "00";
+                        else if (task.Ref.Length > 2)
+                            task.Ref = task.Ref.Substring(0, 2).ToUpper();
+                        else if (task.Ref.Length < 2)
+                            task.Ref = task.Ref.PadRight(2, '0').ToUpper();
+                        else
+                            task.Ref = task.Ref.ToUpper();
+                    }
+                    
                     Spec = spec;
                     if (Spec.Tasks == null) Spec.Tasks = new List<ImpactEffortTask>();
                     GenerateChart();

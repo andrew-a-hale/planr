@@ -34,15 +34,6 @@ public class ImpactEffortConfig
     [JsonPropertyName("title")]
     public string Title { get; set; } = "Impact-Effort Matrix";
 
-    [JsonPropertyName("showLegend")]
-    public bool ShowLegend { get; set; } = true;
-
-    [JsonPropertyName("showQuadrantLabels")]
-    public bool ShowQuadrantLabels { get; set; } = true;
-
-    [JsonPropertyName("showGrid")]
-    public bool ShowGrid { get; set; } = true;
-
     [JsonIgnore]
     public ScreenWidth ContainerMaxWidth { get; set; } = ScreenWidth.Wide;
 
@@ -63,12 +54,13 @@ public enum ImpactLevel
 {
     Low,
     Medium,
-    High
+    High,
 }
 
 public enum EffortLevel
 {
     Low,
     Medium,
-    High
+    High,
 }
+

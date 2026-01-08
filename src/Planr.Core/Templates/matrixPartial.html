@@ -1,0 +1,61 @@
+<style>{{ Css }}</style>
+
+<div class="impact-effort-container" style="--container-max-width: {{ Config.ContainerMaxWidthCss }};">
+    <h1>{{ Config.Title }}</h1>
+    <div class="grid-lines">
+        <div class="grid-line-h" style="top: 33.333%;"></div>
+        <div class="grid-line-h" style="top: 66.667%;"></div>
+        <div class="grid-line-v" style="left: 33.333%;"></div>
+        <div class="grid-line-v" style="left: 66.667%;"></div>
+    </div>
+    
+    {{ for task in ViewModel.Tasks }}
+    <div class="task-point hover-effect" 
+         style="--task-color: {{ task.CategoryColor }}; left: {{ task.LeftPercent }}%; top: {{ task.TopPercent }}%;"
+         title="{{ task.Name }} ({{ task.Category }})">
+        {{ task.Ref }}
+    </div>
+    {{ end }}
+    
+    <!-- Axis Labels -->
+    <!-- X-axis labels (Effort) -->
+    <div class="axis-label" style="left: 16.667%; top: 100%; margin-top: 5px;">Low</div>
+    <div class="axis-label" style="left: 50%; top: 100%; margin-top: 5px;">Medium</div>
+    <div class="axis-label" style="left: 83.333%; top: 100%; margin-top: 5px;">High</div>
+    
+    <!-- Y-axis labels (Impact) - Rotated -->
+    <div class="axis-label axis-label-y" style="left: 5px; top: 16.667%; transform-origin: left center;">High</div>
+    <div class="axis-label axis-label-y" style="left: 5px; top: 50%; transform-origin: left center;">Medium</div>
+    <div class="axis-label axis-label-y" style="left: 5px; top: 83.333%; transform-origin: left center;">Low</div>
+    
+    <!-- Axis Titles -->
+    <div class="axis-title" style="left: 50%; transform: translateX(-50%); top: calc(100% + 25px);">Effort</div>
+    <div class="axis-title axis-label-y" style="left: 5px; top: 50%; transform: rotate(-90deg) translateX(-100%);">Impact</div>
+</div>
+
+<!-- References Table -->
+<div class="references-table">
+    <h3>Task References</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Reference</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Impact</th>
+                <th>Effort</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ for task in ViewModel.Tasks }}
+            <tr>
+                <td><span class="reference-badge" style="background: {{ task.CategoryColor }};">{{ task.Ref | string.upcase }}</span></td>
+                <td>{{ task.Name }}</td>
+                <td><span class="category-badge" style="background: {{ task.CategoryColor }};">{{ task.Category }}</span></td>
+                <td>{{ task.Impact }}</td>
+                <td>{{ task.Effort }}</td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</div>
