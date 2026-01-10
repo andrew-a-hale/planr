@@ -100,28 +100,3 @@
     </div>
   </div>
 </div>
-
-<!-- References Table -->
-<div class="references-table">
-  <h3>Data Table</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Category</th>
-        {{ for series in ViewModel.Series }}
-        <th>{{ series.Name }}</th>
-        {{ end }}
-      </tr>
-    </thead>
-    <tbody>
-      {{ for item in ViewModel.Items }}
-      <tr>
-        <td>{{ item.Category }}</td>
-        {{ for series in ViewModel.Series }}
-        <td>{{ item.SeriesValues[series.Name] ?? '-' }}</td>
-        {{ end }}
-      </tr>
-      {{ end }}
-    </tbody>
-  </table>
-</div>

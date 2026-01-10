@@ -133,10 +133,3 @@ Open your browser to the URL shown in the console (typically `http://localhost:5
   ]
 }
 ```
-
-### Features
-- **Flexible series**: Add or remove series by editing the `seriesNames` array in config (minimum 2 required)
-- **Custom names**: Series names can be any text (e.g., "Q1 2024", "Product A", etc.)
-- **Automatic colors**: Colors are automatically assigned from a palette of 10 colors, cycling if more series are added
-- **Value range**: Values are clamped between -1 (center) and 4 (outer edge)
-- **Null handling**: All values for a series must be provided, or all must be null (to hide a series)

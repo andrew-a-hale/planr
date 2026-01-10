@@ -1,4 +1,5 @@
 @page "/impact-effort"
+@using Planr.Core.Configuration
 @using Planr.Core.Models.ImpactEffort
 @using Planr.Core.Models
 @using Planr.Core.Renderers
@@ -9,7 +10,7 @@
 
 <div class="container mt-4">
     <h1>Impact-Effort Matrix</h1>
-    <p class="lead">Analyze tasks by their impact and effort to prioritize work</p>
+    <p class="lead">Analyse tasks by their impact and effort to prioritise work</p>
 
     <div class="row">
         <div class="col-md-12">
@@ -86,7 +87,7 @@
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <label class="form-label small fw-bold">Chart Title</label>
-                                <input type="text" class="form-control form-control-sm" @bind="Spec.Config.Title" placeholder="e.g. Project Prioritization">
+                                <input type="text" class="form-control form-control-sm" @bind="Spec.Config.Title" placeholder="e.g. Project Prioritisation">
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label small fw-bold">Container Max Width</label>
