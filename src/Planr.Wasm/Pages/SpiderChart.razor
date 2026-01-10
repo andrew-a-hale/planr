@@ -1,0 +1,371 @@
+@page "/spider"
+@using Planr.Core.Models.Spider
+@using Planr.Core.Models
+@using Planr.Core.Renderers
+@using System.Text.Json
+@inject IJSRuntime JS
+
+<PageTitle>Spider Chart</PageTitle>
+
+<div class="container mt-4">
+    <h1>Spider Chart</h1>
+    <p class="lead">Visualize multiple series across dimensions in a radial plot</p>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link text-decoration-none text-dark p-0 fw-bold" type="button" @onclick="ToggleItemEditor">
+                            Item Editor <span style="font-size: 0.8em">@(ShowItemEditor ? "▼" : "▶")</span>
+                        </button>
+                    </h5>
+                    <div class="d-flex align-items-center">
+                        <div class="me-2">
+                             <InputFile OnChange="LoadFile" class="form-control form-control-sm" accept=".json" />
+                        </div>
+
+                        <button type="button" class="btn btn-primary btn-sm me-2" @onclick="AddItem">+ Add Item</button>
+                    </div>
+                </div>
+                <div class="@(ShowItemEditor ? "collapse show" : "collapse")">
+                    <div class="card-body p-0">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Category</th>
+                                    @foreach (var seriesName in Spec.Config.SeriesNames)
+                                    {
+                                        <th>@seriesName</th>
+                                    }
+                                    <th style="width: 100px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Spec.Items)
+                                {
+                                    <tr>
+                                        <td><input type="text" class="form-control form-control-sm" @bind="item.Category" placeholder="Dimension Name"></td>
+                                        @foreach (var seriesName in Spec.Config.SeriesNames)
+                                        {
+                                            <td>
+                                                @if (!item.SeriesValues.ContainsKey(seriesName))
+                                                {
+                                                    item.SeriesValues[seriesName] = null;
+                                                }
+                                                <input type="number" class="form-control form-control-sm" @bind="item.SeriesValues[seriesName]" min="-1" max="4" step="0.5" placeholder="-1 to 4">
+                                            </td>
+                                        }
+                                        <td><button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => RemoveItem(item)">Remove</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link text-decoration-none text-dark p-0 fw-bold" type="button" @onclick="ToggleChartSettings">
+                            Chart Settings <span style="font-size: 0.8em">@(ShowChartSettings ? "▼" : "▶")</span>
+                        </button>
+                    </h5>
+                </div>
+                <div class="@(ShowChartSettings ? "collapse show" : "collapse")">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Chart Title</label>
+                                <input type="text" class="form-control form-control-sm" @bind="Spec.Config.Title" placeholder="e.g. Performance Metrics">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Container Max Width</label>
+                                <select class="form-select form-select-sm" @bind="Spec.Config.ContainerMaxWidth">
+                                    @foreach (var width in Enum.GetValues<Screen.Width>())
+                                    {
+                                        <option value="@width">@GetScreenWidthLabel(width)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold">Series Names</label>
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                    @for (int i = 0; i < Spec.Config.SeriesNames.Count; i++)
+                                    {
+                                        var index = i;
+                                        <div class="input-group input-group-sm" style="width: 200px;">
+                                            <input type="text" class="form-control" @bind="Spec.Config.SeriesNames[index]" @onblur="() => OnSeriesNameChanged(index)" placeholder="Series name">
+                                            <button type="button" class="btn btn-outline-danger" @onclick="() => RemoveSeriesName(index)" disabled="@(Spec.Config.SeriesNames.Count <= 2)">×</button>
+                                        </div>
+                                    }
+                                    <button type="button" class="btn btn-outline-success btn-sm" @onclick="AddSeriesName">+ Add Series</button>
+                                </div>
+                                <small class="text-muted">At least 2 series required. Colors will be assigned automatically.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger">@ErrorMessage</div>
+    }
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Chart Preview</h5>
+            <div class="d-flex align-items-center">
+              <button type="button" class="btn btn-outline-secondary btn-sm me-2" @onclick="ExportJson">Export JSON</button>
+              <button type="button" class="btn btn-success btn-sm" @onclick="GenerateChart">Generate Chart</button>
+            </div>
+        </div>
+        <div class="card-body overflow-auto @(string.IsNullOrEmpty(ChartHtml) ? "collapse" : "collapse show")">
+            @if (!string.IsNullOrEmpty(ChartHtml))
+            {
+                @((MarkupString)ChartHtml)
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private SpiderSpec Spec { get; set; } = new();
+    private string? ChartHtml { get; set; }
+    private string? ErrorMessage { get; set; }
+    private bool ShowItemEditor { get; set; } = true;
+    private bool ShowChartSettings { get; set; } = false;
+    private Dictionary<int, string> _previousSeriesNames = new();
+
+    protected override void OnInitialized()
+    {
+        Spec.Config.SeriesNames = new List<string> { "First", "Second", "Third" };
+        _previousSeriesNames = new Dictionary<int, string>
+        {
+            { 0, "First" },
+            { 1, "Second" },
+            { 2, "Third" }
+        };
+
+        Spec.Items = new List<SpiderItem>
+        {
+            new()
+            {
+                Category = "Dimension 1",
+                SeriesValues = new Dictionary<string, double?>
+                {
+                    { "First", -1 },
+                    { "Second", 2 },
+                    { "Third", null }
+                }
+            },
+            new()
+            {
+                Category = "Dimension 2",
+                SeriesValues = new Dictionary<string, double?>
+                {
+                    { "First", -1 },
+                    { "Second", 3 },
+                    { "Third", null }
+                }
+            },
+            new()
+            {
+                Category = "Dimension 3",
+                SeriesValues = new Dictionary<string, double?>
+                {
+                    { "First", 0 },
+                    { "Second", 3 },
+                    { "Third", null }
+                }
+            },
+            new()
+            {
+                Category = "Dimension 4",
+                SeriesValues = new Dictionary<string, double?>
+                {
+                    { "First", 1 },
+                    { "Second", 2 },
+                    { "Third", null }
+                }
+            },
+            new()
+            {
+                Category = "Dimension 5",
+                SeriesValues = new Dictionary<string, double?>
+                {
+                    { "First", 2 },
+                    { "Second", 1 },
+                    { "Third", null }
+                }
+            },
+        };
+    }
+
+    private void ToggleItemEditor()
+    {
+        ShowItemEditor = !ShowItemEditor;
+    }
+
+    private void ToggleChartSettings()
+    {
+        ShowChartSettings = !ShowChartSettings;
+    }
+
+    private string GetScreenWidthLabel(Screen.Width width) => Screen.WidthCssOption(width);
+
+    private void AddItem()
+    {
+        var newItem = new SpiderItem
+        {
+            Category = "New Dimension",
+            SeriesValues = new Dictionary<string, double?>()
+        };
+
+        foreach (var seriesName in Spec.Config.SeriesNames)
+        {
+            newItem.SeriesValues[seriesName] = null;
+        }
+
+        Spec.Items.Add(newItem);
+    }
+
+    private void RemoveItem(SpiderItem item)
+    {
+        Spec.Items.Remove(item);
+    }
+
+    private void AddSeriesName()
+    {
+        var newName = $"Series {Spec.Config.SeriesNames.Count + 1}";
+        Spec.Config.SeriesNames.Add(newName);
+        _previousSeriesNames[Spec.Config.SeriesNames.Count - 1] = newName;
+
+        foreach (var item in Spec.Items)
+        {
+            item.SeriesValues[newName] = null;
+        }
+    }
+
+    private void RemoveSeriesName(int index)
+    {
+        if (Spec.Config.SeriesNames.Count <= 2)
+        {
+            ErrorMessage = "At least 2 series are required.";
+            return;
+        }
+
+        var nameToRemove = Spec.Config.SeriesNames[index];
+        Spec.Config.SeriesNames.RemoveAt(index);
+
+        foreach (var item in Spec.Items)
+        {
+            item.SeriesValues.Remove(nameToRemove);
+        }
+
+        ErrorMessage = null;
+    }
+
+    private void OnSeriesNameChanged(int index)
+    {
+        var newName = Spec.Config.SeriesNames[index];
+        var oldName = _previousSeriesNames.TryGetValue(index, out var prev) ? prev : Spec.Config.SeriesNames[index];
+
+        if (string.IsNullOrEmpty(oldName) || string.IsNullOrEmpty(newName) || oldName == newName)
+            return;
+
+        foreach (var item in Spec.Items)
+        {
+            if (item.SeriesValues.TryGetValue(oldName, out var value))
+            {
+                item.SeriesValues.Remove(oldName);
+                item.SeriesValues[newName] = value;
+            }
+        }
+
+        _previousSeriesNames[index] = newName;
+    }
+
+    private async Task LoadFile(InputFileChangeEventArgs e)
+    {
+        ErrorMessage = null;
+        try
+        {
+            var file = e.File;
+            if (file != null)
+            {
+                using var stream = file.OpenReadStream();
+                var spec = await JsonSerializer.DeserializeAsync<SpiderSpec>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (spec != null)
+                {
+                    Spec = spec;
+                    if (Spec.Items == null) Spec.Items = new List<SpiderItem>();
+                    if (Spec.Config == null) Spec.Config = new SpiderConfig();
+                    if (Spec.Config.SeriesNames == null) Spec.Config.SeriesNames = new List<string> { "First", "Second", "Third" };
+
+                    _previousSeriesNames = new Dictionary<int, string>();
+                    for (int i = 0; i < Spec.Config.SeriesNames.Count; i++)
+                    {
+                        _previousSeriesNames[i] = Spec.Config.SeriesNames[i];
+                    }
+
+                    foreach (var item in Spec.Items)
+                    {
+                        if (item.SeriesValues == null)
+                            item.SeriesValues = new Dictionary<string, double?>();
+
+                        var newSeriesValues = new Dictionary<string, double?>();
+                        foreach (var seriesName in Spec.Config.SeriesNames)
+                        {
+                            var found = false;
+                            foreach (var kvp in item.SeriesValues)
+                            {
+                                if (kvp.Key.Equals(seriesName, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    newSeriesValues[seriesName] = kvp.Value;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found)
+                                newSeriesValues[seriesName] = null;
+                        }
+                        item.SeriesValues = newSeriesValues;
+                    }
+
+                    GenerateChart();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error parsing imported JSON: {ex.Message}";
+        }
+    }
+
+    private async Task ExportJson()
+    {
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        var json = JsonSerializer.Serialize(Spec, options);
+        await JS.InvokeVoidAsync("downloadFile", "spider-spec.json", json);
+    }
+
+    private void GenerateChart()
+    {
+        ErrorMessage = null;
+        try
+        {
+            ChartHtml = HtmlSpiderRenderer.Render(Spec, partial: true);
+        }
+        catch (Exception ex)
+        {
+             ErrorMessage = $"Error generating chart: {ex.Message}";
+        }
+        ShowItemEditor = false;
+    }
+}

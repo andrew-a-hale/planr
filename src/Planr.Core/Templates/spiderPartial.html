@@ -1,0 +1,127 @@
+<style>{{ Css }}</style>
+
+<div class="spider-chart">
+  <h1>{{ Config.Title }}</h1>
+
+  <div class="spider-chart-container" style="--container-max-width: {{ Config.ContainerMaxWidthCss }};">
+    <div class="chart-legend">
+    <strong>Legend</strong>
+      {{ for series in ViewModel.Series }}
+      <div class="legend-item">
+        <span class="legend-color" style="background-color: {{ series.Color }};"></span>
+        {{ series.Name }}
+      </div>
+      {{ end }}
+    </div>
+
+    <div class="spider-plot">
+      <svg viewBox="0 0 100 100" class="spider-svg">
+        <!-- Radial grid lines (concentric circles) -->
+        <g class="radial-grid">
+          <!-- 0% (center, value -1) -->
+          <circle cx="50" cy="50" r="0" fill="none" stroke="#ddd" stroke-width="0.5" />
+          <!-- 20% (value -0.2) -->
+          <circle cx="50" cy="50" r="9" fill="none" stroke="#ddd" stroke-width="0.5" />
+          <!-- 40% (value 0.6) -->
+          <circle cx="50" cy="50" r="18" fill="none" stroke="#ddd" stroke-width="0.5" />
+          <!-- 60% (value 1.4) -->
+          <circle cx="50" cy="50" r="27" fill="none" stroke="#ddd" stroke-width="0.5" />
+          <!-- 80% (value 2.2) -->
+          <circle cx="50" cy="50" r="36" fill="none" stroke="#ddd" stroke-width="0.5" />
+          <!-- 100% (value 3.0 - max outer edge) -->
+          <circle cx="50" cy="50" r="45" fill="none" stroke="#ddd" stroke-width="0.5" />
+        </g>
+
+        <!-- Radial axis lines -->
+        <g class="radial-axes">
+          {{ for dimension in ViewModel.Dimensions }}
+          <line x1="50" y1="50" x2="{{ dimension.OuterX }}" y2="{{ dimension.OuterY }}" stroke="#ddd" stroke-width="0.5" />
+          {{ end }}
+        </g>
+
+        <!-- Value labels on grid -->
+        <g class="grid-labels">
+          <text x="51" y="3" font-size="2" fill="#999">4</text>
+          <text x="51" y="12" font-size="2" fill="#999">3</text>
+          <text x="51" y="21" font-size="2" fill="#999">2</text>
+          <text x="51" y="30" font-size="2" fill="#999">1</text>
+          <text x="51" y="39" font-size="2" fill="#999">0</text>
+          <text x="51" y="48" font-size="2" fill="#999">-1</text>
+        </g>
+
+        <!-- Series lines -->
+        <g class="series-lines">
+          {{ for series in ViewModel.Series }}
+          {{~ points = '' ~}}
+          {{~ for point in series.Points ~}}
+            {{~ points = points + point.X + ',' + point.Y + ' ' ~}}
+          {{~ end ~}}
+          {{~ firstPoint = series.Points[0] ~}}
+          {{~ points = points + firstPoint.X + ',' + firstPoint.Y ~}}
+          <polyline
+            points="{{ points | string.strip }}"
+            fill="none"
+            stroke="{{ series.Color }}"
+            stroke-width="1"
+          />
+          {{ end }}
+        </g>
+
+        <!-- Data points -->
+        <g class="data-points">
+          {{ for series in ViewModel.Series }}
+          {{ for point in series.Points }}
+          <circle
+            cx="{{ point.X }}"
+            cy="{{ point.Y }}"
+            r="2"
+            fill="{{ series.Color }}"
+            stroke="white"
+            stroke-width="0.5"
+            class="hover-effect"
+            title="{{ point.DimensionName }}: {{ series.Name }} = {{ point.Value ?? 'null' }}"
+          />
+          {{ end }}
+          {{ end }}
+        </g>
+      </svg>
+
+      <!-- Dimension labels -->
+      <div class="dimension-labels">
+        {{ for dimension in ViewModel.Dimensions }}
+        <div
+          class="dimension-label"
+          style="left: {{ dimension.LabelX }}%; top: {{ dimension.LabelY }}%;"
+        >
+          {{ dimension.TruncatedName }}
+        </div>
+        {{ end }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- References Table -->
+<div class="references-table">
+  <h3>Data Table</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Category</th>
+        {{ for series in ViewModel.Series }}
+        <th>{{ series.Name }}</th>
+        {{ end }}
+      </tr>
+    </thead>
+    <tbody>
+      {{ for item in ViewModel.Items }}
+      <tr>
+        <td>{{ item.Category }}</td>
+        {{ for series in ViewModel.Series }}
+        <td>{{ item.SeriesValues[series.Name] ?? '-' }}</td>
+        {{ end }}
+      </tr>
+      {{ end }}
+    </tbody>
+  </table>
+</div>

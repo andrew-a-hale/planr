@@ -108,7 +108,7 @@
 /* Legend Styles */
 .chart-legend {
   margin-bottom: var(--spacing-lg);
-  padding: var(--spacing-sm);
+  padding: var(--spacing-md);
   background: #f8f9fa;
   border-radius: var(--border-radius-md);
   border: 1px solid #e9ecef;
@@ -474,4 +474,106 @@
 /* Hover Effects */
 .hover-effect {
   cursor: pointer;
+}
+
+/* Spider Chart Specific Styles */
+.spider-chart {
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.spider-chart h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--gantt-primary);
+}
+
+.spider-chart-container {
+  max-width: calc(var(--container-max-width, 1200px) / 2);
+  margin: 0 auto;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+.spider-chart-container .chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  justify-content: center;
+  margin-bottom: var(--spacing-2xl);
+  padding: var(--spacing-sm);
+  background: #f8f9fa;
+  border-radius: var(--border-radius-md);
+  border: 1px solid #e9ecef;
+}
+
+.spider-plot {
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  margin-bottom: var(--spacing-xl);
+}
+
+.spider-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.spider-svg .radial-grid circle {
+  stroke: #ddd;
+  stroke-width: 0.5;
+  fill: none;
+}
+
+.spider-svg .radial-axes line {
+  stroke: #ddd;
+  stroke-width: 0.5;
+}
+
+.spider-svg .grid-labels text {
+  font-size: 2px;
+  fill: #999;
+}
+
+.spider-svg .data-series polygon {
+  transition: all 0.2s ease-in-out;
+}
+
+.spider-svg .data-series polygon:hover {
+  fill-opacity: 0.4;
+  stroke-width: 1.5;
+}
+
+.spider-svg .data-points circle {
+  transition: all 0.2s ease-in-out;
+}
+
+.spider-svg .data-points circle:hover {
+  r: 3;
+  stroke-width: 1;
+}
+
+.dimension-labels {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.dimension-label {
+  position: absolute;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--gantt-primary);
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  background: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }

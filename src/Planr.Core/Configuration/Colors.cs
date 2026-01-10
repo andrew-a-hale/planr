@@ -21,4 +21,26 @@ public static class Colors
 
     // Default color
     public static readonly string LightGray = "#95a5a6";
+
+    // Extended palette for spider chart series (up to 10)
+    public static readonly string[] SeriesPalette = new[]
+    {
+        Red,
+        Turquoise,
+        Amber,
+        Purple,
+        Blue,
+        DeepOrange,
+        Pink,
+        Green,
+        Orange,
+        DarkGray,
+    };
+
+    public static string GetSeriesColor(int index)
+    {
+        if (index < 0)
+            return LightGray;
+        return SeriesPalette[index % SeriesPalette.Length];
+    }
 }
