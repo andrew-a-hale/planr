@@ -20,8 +20,8 @@ public static class HtmlGanttRenderer
         var cssContent = GetTemplate("core-charts.css");
 
         // Always render partial first with CSS included
-        var partialContent = global::Scriban.Template
-            .Parse(GetTemplate("ganttPartial.html"))
+        var partialContent = global::Scriban
+            .Template.Parse(GetTemplate("ganttPartial.html"))
             .Render(
                 new
                 {
@@ -186,4 +186,3 @@ public static class HtmlGanttRenderer
         return reader.ReadToEnd();
     }
 }
-

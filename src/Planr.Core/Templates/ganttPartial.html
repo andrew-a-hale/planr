@@ -1,45 +1,47 @@
 <style>{{ Css }}</style>
 
-<div class="chart-container" style="--container-max-width: {{ Config.ContainerMaxWidthCss }}; --label-width: {{ Config.LabelWidth }}px;">
-    <h1>{{ Config.Title }}</h1>
-    {{ if Config.ShowLegend }}
-    <div class="chart-legend">
-        <strong>Legend</strong>
-        {{ for item in Legend }}
-        <div class="legend-item">
-            <span class="legend-color" style="background-color: {{ item.Color }};"></span> 
-            {{ item.Name }}
-        </div>
-        {{ end }}
+<div class="chart-container"
+  style="--container-max-width: {{ Config.ContainerMaxWidthCss }}; --label-width: {{ Config.LabelWidth }}px;">
+  <h1>{{ Config.Title }}</h1>
+  {{ if Config.ShowLegend }}
+  <div class="chart-legend">
+    <strong>Legend</strong>
+    {{ for item in Legend }}
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: {{ item.Color }};"></span>
+      {{ item.Name }}
     </div>
     {{ end }}
+  </div>
+  {{ end }}
 
-    <div class="gantt-header-row">
-        <div class="gantt-header-label"></div>
-        <div class="gantt-header-track">
-            {{ for week in Weeks }}
-            <div class="gantt-week-marker" style="left: {{ week.LeftPercent }}%; width: {{ week.WidthPercent }}%">
-                {{ week.Label }}
-            </div>
-            {{ end }}
-        </div>
+  <div class="gantt-header-row">
+    <div class="gantt-header-label"></div>
+    <div class="gantt-header-track">
+      {{ for week in Weeks }}
+      <div class="gantt-week-marker" style="left: {{ week.LeftPercent }}%; width: {{ week.WidthPercent }}%">
+        {{ week.Label }}
+      </div>
+      {{ end }}
     </div>
+  </div>
 
-    {{ for group in ProjectGroups }}
-    <div class="project-group">
-        <h2>{{ group.Name }}</h2>
-        {{ for task in group.Tasks }}
-        <div class="gantt-task-row">
-            <div class="gantt-task-label">{{ task.Name }}</div>
-            <div class="gantt-task-track">
-                <div class="gantt-task-bar" style="left: {{ task.LeftPercent }}%; width: {{ task.WidthPercent }}%; --task-color: {{ task.Color }};">
-                    {{ for mark in task.WeekMarks }}
-                    <div class="gantt-task-mark" style="left: {{ mark }}%"></div>
-                    {{ end }}
-                </div>
-            </div>
+  {{ for group in ProjectGroups }}
+  <div class="project-group">
+    <h2>{{ group.Name }}</h2>
+    {{ for task in group.Tasks }}
+    <div class="gantt-task-row">
+      <div class="gantt-task-label">{{ task.Name }}</div>
+      <div class="gantt-task-track">
+        <div class="gantt-task-bar"
+          style="left: {{ task.LeftPercent }}%; width: {{ task.WidthPercent }}%; --task-color: {{ task.Color }};">
+          {{ for mark in task.WeekMarks }}
+          <div class="gantt-task-mark" style="left: {{ mark }}%"></div>
+          {{ end }}
         </div>
-        {{ end }}
+      </div>
     </div>
     {{ end }}
+  </div>
+  {{ end }}
 </div>

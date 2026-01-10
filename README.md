@@ -85,3 +85,36 @@ Open your browser to the URL shown in the console (typically `http://localhost:5
   ]
 }
 ```
+
+## Spider Chart
+
+### JSON Specification Format
+
+```json
+{
+  "config": {
+    "title": "Spider Chart",
+    "containerMaxWidth": 1200
+  },
+  "items": [
+    {
+      "category": "Dimension 1",
+      "first": -1,
+      "second": 2,
+      "third": null
+    },
+    {
+      "category": "Dimension 2",
+      "first": -1,
+      "second": 3,
+      "third": null
+    },
+    {
+      "category": "Dimension 3",
+      "first": 0,
+      "second": 3,
+      "third": null
+    }
+  ]
+}
+```

@@ -6,24 +6,24 @@ public static class ImpactEffortTheme
     public static List<string> CategoryColors { get; set; } =
         new()
         {
-            "#9b59b6", // Purple
-            "#1abc9c", // Turquoise
-            "#f39c12", // Yellow
-            "#34495e", // Dark Gray
-            "#e91e63", // Pink
-            "#795548", // Brown
-            "#607d8b", // Blue Gray
-            "#ff5722", // Deep Orange
+            Colors.Purple,
+            Colors.Turquoise,
+            Colors.Amber,
+            Colors.DarkGray,
+            Colors.Pink,
+            Colors.Brown,
+            Colors.BlueGray,
+            Colors.DeepOrange,
         };
 
     public static string GetCategoryColor(string category, List<string> allCategories)
     {
         if (string.IsNullOrEmpty(category) || allCategories.Count == 0)
-            return "#95a5a6";
+            return Colors.LightGray;
 
         int index = allCategories.IndexOf(category);
         if (index < 0)
-            return "#95a5a6";
+            return Colors.LightGray;
 
         return CategoryColors[index % CategoryColors.Count];
     }

@@ -26,7 +26,7 @@ public class GanttTask
     public DateTime End { get; set; }
 
     [JsonPropertyName("priority")]
-    public Priority Priority { get; set; } = Priority.Medium;
+    public GanttPriority Priority { get; set; } = GanttPriority.Medium;
 }
 
 public class GanttConfig
@@ -41,22 +41,13 @@ public class GanttConfig
     public bool ShowLegend { get; set; } = true;
 
     [JsonIgnore]
-    public ScreenWidth ContainerMaxWidth { get; set; } = ScreenWidth.Wide;
+    public Screen.Width ContainerMaxWidth { get; set; } = Screen.Width.Wide;
 
     [JsonPropertyName("containerMaxWidth")]
-    public string ContainerMaxWidthCss =>
-        ContainerMaxWidth switch
-        {
-            ScreenWidth.Narrow => "800px",
-            ScreenWidth.Standard => "1000px",
-            ScreenWidth.Wide => "1200px",
-            ScreenWidth.ExtraWide => "1400px",
-            ScreenWidth.Fluid => "100%",
-            _ => "1200px",
-        };
+    public string ContainerMaxWidthCss => Screen.WidthCss(ContainerMaxWidth);
 }
 
-public enum Priority
+public enum GanttPriority
 {
     Critical = 1,
     High = 2,
@@ -64,4 +55,3 @@ public enum Priority
     Low = 4,
     Lowest = 5,
 }
-

@@ -1,3 +1,4 @@
+using Planr.Core.Configuration;
 using Planr.Core.Models.Gantt;
 
 namespace Planr.Core.ViewModels.Gantt;
@@ -20,16 +21,8 @@ public class TimeBlock
     public DateTime Start { get; set; }
     public DateTime End { get; set; }
     public int Duration => (int)Math.Ceiling((End - Start).TotalDays) + 1;
-    public string PriorityCss => Priority switch
-    {
-        Priority.Critical => "critical",
-        Priority.High => "high",
-        Priority.Medium => "medium",
-        Priority.Low => "low",
-        Priority.Lowest => "lowest",
-        _ => "medium"
-    };
-    public Priority Priority { get; set; }
+    public GanttPriority Priority { get; set; }
+    public string PriorityCss => GanttTheme.GetPriorityCss(Priority);
     public string Color { get; set; } = string.Empty;
 }
 
@@ -64,6 +57,6 @@ public class TaskViewModel
     public string Color { get; set; } = string.Empty;
     public string PriorityCss { get; set; } = string.Empty;
     public string Project { get; set; } = string.Empty;
-    public Priority Priority { get; set; }
+    public GanttPriority Priority { get; set; }
     public List<double> WeekMarks { get; set; } = new();
 }

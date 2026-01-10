@@ -4,18 +4,29 @@ namespace Planr.Core.Configuration;
 
 public static class GanttTheme
 {
-    public static Dictionary<Priority, string> PriorityColors { get; set; } =
+    public static Dictionary<GanttPriority, string> PriorityColors { get; set; } =
         new()
         {
-            { Priority.Critical, "#e74c3c" }, // Red
-            { Priority.High, "#e67e22" }, // Orange
-            { Priority.Medium, "#f1c40f" }, // Yellow
-            { Priority.Low, "#3498db" }, // Blue
-            { Priority.Lowest, "#2ecc71" }, // Green
+            { GanttPriority.Critical, Colors.Red },
+            { GanttPriority.High, Colors.Orange },
+            { GanttPriority.Medium, Colors.Gold },
+            { GanttPriority.Low, Colors.Blue },
+            { GanttPriority.Lowest, Colors.Green },
         };
 
-    public static string GetColor(Priority priority)
+    public static string GetColor(GanttPriority priority)
     {
-        return PriorityColors.TryGetValue(priority, out var color) ? color : "#95a5a6";
+        return PriorityColors.TryGetValue(priority, out var color) ? color : Colors.LightGray;
     }
+
+    public static string GetPriorityCss(GanttPriority priority) =>
+        priority switch
+        {
+            GanttPriority.Critical => "critical",
+            GanttPriority.High => "high",
+            GanttPriority.Medium => "medium",
+            GanttPriority.Low => "low",
+            GanttPriority.Lowest => "lowest",
+            _ => "medium",
+        };
 }

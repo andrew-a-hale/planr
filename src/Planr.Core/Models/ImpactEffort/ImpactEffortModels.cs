@@ -35,19 +35,10 @@ public class ImpactEffortConfig
     public string Title { get; set; } = "Impact-Effort Matrix";
 
     [JsonIgnore]
-    public ScreenWidth ContainerMaxWidth { get; set; } = ScreenWidth.Wide;
+    public Screen.Width ContainerMaxWidth { get; set; } = Screen.Width.Wide;
 
     [JsonPropertyName("containerMaxWidth")]
-    public string ContainerMaxWidthCss =>
-        ContainerMaxWidth switch
-        {
-            ScreenWidth.Narrow => "800px",
-            ScreenWidth.Standard => "1000px",
-            ScreenWidth.Wide => "1200px",
-            ScreenWidth.ExtraWide => "1400px",
-            ScreenWidth.Fluid => "100%",
-            _ => "1200px",
-        };
+    public string ContainerMaxWidthCss => Screen.WidthCss(ContainerMaxWidth);
 }
 
 public enum ImpactLevel
@@ -63,4 +54,3 @@ public enum EffortLevel
     Medium,
     High,
 }
-

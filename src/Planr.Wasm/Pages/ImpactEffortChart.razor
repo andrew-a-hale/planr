@@ -91,7 +91,7 @@
                             <div class="col-md-3">
                                 <label class="form-label small fw-bold">Container Max Width</label>
                                 <select class="form-select form-select-sm" @bind="Spec.Config.ContainerMaxWidth">
-                                    @foreach (var width in Enum.GetValues<ScreenWidth>())
+                                    @foreach (var width in Enum.GetValues<Screen.Width>())
                                     {
                                         <option value="@width">@GetScreenWidthLabel(width)</option>
                                     }
@@ -184,15 +184,7 @@
         ShowChartSettings = !ShowChartSettings;
     }
 
-    private string GetScreenWidthLabel(ScreenWidth width) => width switch
-    {
-        ScreenWidth.Narrow => "Narrow (800px)",
-        ScreenWidth.Standard => "Standard (1000px)",
-        ScreenWidth.Wide => "Wide (1200px)",
-        ScreenWidth.ExtraWide => "Extra Wide (1400px)",
-        ScreenWidth.Fluid => "Fluid (100%)",
-        _ => width.ToString()
-    };
+    private string GetScreenWidthLabel(Screen.Width width) => Screen.WidthCssOption(width);
 
     private void AddTask()
     {
