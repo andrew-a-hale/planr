@@ -3,9 +3,9 @@ using Planr.Core.Models.Gantt;
 
 namespace Planr.Core.Renderers;
 
-public static class HtmlGanttRenderer
+public class HtmlGanttRenderer : IChartRenderer<GanttSpec>
 {
-  public static string Render(GanttSpec spec, bool partial = false)
+  public string Render(GanttSpec spec, bool partial = false)
   {
     if (spec.Tasks == null || spec.Tasks.Count == 0)
     {
@@ -14,12 +14,11 @@ public static class HtmlGanttRenderer
 
     var viewModel = BuildViewModel(spec);
 
-    // Get shared CSS content
-    var cssContent = GetTemplate("core-charts.css");
+    var cssContent = TemplateLoader.LoadTemplate("core-charts.css");
 
     // Always render partial first with CSS included
     var partialContent = Scriban
-        .Template.Parse(GetTemplate("ganttPartial.html"))
+        .Template.Parse(TemplateLoader.LoadTemplate("ganttPartial.html"))
         .Render(
             new
             {
@@ -37,10 +36,10 @@ public static class HtmlGanttRenderer
       return partialContent;
     }
 
-    // Wrap in full layout with CSS included
-    var layoutTemplate = Scriban.Template.Parse(GetTemplate("gantt.html"));
+    // Wrap in shared layout
+    var layoutTemplate = Scriban.Template.Parse(TemplateLoader.LoadTemplate("chart-wrapper.html"));
     return layoutTemplate.Render(
-        new { body = partialContent, Css = cssContent },
+        new { body = partialContent, viewModel.Config.Title },
         member => member.Name
     );
   }
@@ -159,29 +158,5 @@ public static class HtmlGanttRenderer
     }
 
     return vm;
-  }
-
-  private static string GetTemplate(string name)
-  {
-    // Use the assembly where this class is defined
-    var assembly = typeof(HtmlGanttRenderer).Assembly;
-
-    // Resource name pattern: DefaultNamespace.Folders.Filename
-    // Project Namespace: Planr.Core
-    // Folder: Templates
-    // File: gantt.html
-    var resourceName = $"Planr.Core.Templates.{name}";
-
-    using var stream = assembly.GetManifestResourceStream(resourceName);
-    if (stream == null)
-    {
-      var resources = string.Join(", ", assembly.GetManifestResourceNames());
-      throw new FileNotFoundException(
-          $"Template '{name}' not found. Searched for '{resourceName}'. Available: {resources}"
-      );
-    }
-
-    using var reader = new StreamReader(stream);
-    return reader.ReadToEnd();
   }
 }

@@ -4,9 +4,9 @@ using Planr.Core.ViewModels.Spider;
 
 namespace Planr.Core.Renderers;
 
-public static class HtmlSpiderRenderer
+public class HtmlSpiderRenderer : IChartRenderer<SpiderSpec>
 {
-  public static string Render(SpiderSpec spec, bool partial = false)
+  public string Render(SpiderSpec spec, bool partial = false)
   {
     if (spec.Items == null || spec.Items.Count == 0)
     {
@@ -20,7 +20,7 @@ public static class HtmlSpiderRenderer
     }
     catch (InvalidOperationException ex)
     {
-      var errorCssContent = GetTemplate("core-charts.css");
+      var errorCssContent = TemplateLoader.LoadTemplate("core-charts.css");
       return $@"
  <style>{{ errorCssContent }}</style>
  <div class=""spider-chart"">
@@ -31,10 +31,10 @@ public static class HtmlSpiderRenderer
  </div>";
     }
 
-    var cssContent = GetTemplate("core-charts.css");
+    var cssContent = TemplateLoader.LoadTemplate("core-charts.css");
 
     var partialContent = Scriban
-        .Template.Parse(GetTemplate("spiderPartial.html"))
+        .Template.Parse(TemplateLoader.LoadTemplate("spiderPartial.html"))
         .Render(
             new
             {
@@ -50,9 +50,9 @@ public static class HtmlSpiderRenderer
       return partialContent;
     }
 
-    var layoutTemplate = Scriban.Template.Parse(GetTemplate("spider.html"));
+    var layoutTemplate = Scriban.Template.Parse(TemplateLoader.LoadTemplate("chart-wrapper.html"));
     return layoutTemplate.Render(
-        new { body = partialContent, Css = cssContent },
+        new { body = partialContent, viewModel.Config.Title },
         member => member.Name
     );
   }
@@ -137,23 +137,5 @@ public static class HtmlSpiderRenderer
     }
 
     return vm;
-  }
-
-  private static string GetTemplate(string name)
-  {
-    var assembly = typeof(HtmlSpiderRenderer).Assembly;
-    var resourceName = $"Planr.Core.Templates.{name}";
-
-    using var stream = assembly.GetManifestResourceStream(resourceName);
-    if (stream == null)
-    {
-      var resources = string.Join(", ", assembly.GetManifestResourceNames());
-      throw new FileNotFoundException(
-          $"Template '{name}' not found. Searched for '{resourceName}'. Available: {resources}"
-      );
-    }
-
-    using var reader = new StreamReader(stream);
-    return reader.ReadToEnd();
   }
 }

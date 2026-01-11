@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Planr.Core.Configuration;
 
 namespace Planr.Core.Models.Gantt;
 
@@ -30,22 +29,13 @@ public class GanttTask
   public GanttPriority Priority { get; set; } = GanttPriority.Medium;
 }
 
-public class GanttConfig
+public class GanttConfig : ChartConfig
 {
-  [JsonPropertyName("title")]
-  public string Title { get; set; } = "Project Plan";
-
   [JsonPropertyName("labelWidth")]
   public int LabelWidth { get; set; } = 150;
 
   [JsonPropertyName("showLegend")]
   public bool ShowLegend { get; set; } = true;
-
-  [JsonIgnore]
-  public Screen.Width ContainerMaxWidth { get; set; } = Screen.Width.Wide;
-
-  [JsonPropertyName("containerMaxWidth")]
-  public string ContainerMaxWidthCss => Screen.WidthCss(ContainerMaxWidth);
 }
 
 public enum GanttPriority

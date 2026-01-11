@@ -25,17 +25,17 @@ public static class Colors
   // Extended palette for spider chart series (up to 10)
   public static readonly string[] SeriesPalette =
   [
-      Red,
-        Turquoise,
-        Amber,
-        Purple,
-        Blue,
-        DeepOrange,
-        Pink,
-        Green,
-        Orange,
-        DarkGray,
-    ];
+    Red,
+    Turquoise,
+    Amber,
+    Purple,
+    Blue,
+    DeepOrange,
+    Pink,
+    Green,
+    Orange,
+    DarkGray,
+  ];
 
   public static string GetSeriesColor(int index)
   {

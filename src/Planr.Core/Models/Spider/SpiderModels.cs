@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Planr.Core.Configuration;
 
 namespace Planr.Core.Models.Spider;
 
@@ -21,17 +20,8 @@ public class SpiderItem
   public Dictionary<string, double?> SeriesValues { get; set; } = [];
 }
 
-public class SpiderConfig
+public class SpiderConfig : ChartConfig
 {
-  [JsonPropertyName("title")]
-  public string Title { get; set; } = "Spider Chart";
-
   [JsonPropertyName("seriesNames")]
   public List<string> SeriesNames { get; set; } = ["First", "Second", "Third"];
-
-  [JsonIgnore]
-  public Screen.Width ContainerMaxWidth { get; set; } = Screen.Width.Wide;
-
-  [JsonPropertyName("containerMaxWidth")]
-  public string ContainerMaxWidthCss => Screen.WidthCss(ContainerMaxWidth);
 }

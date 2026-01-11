@@ -2,15 +2,16 @@
 @using Planr.Core.Configuration
 @using Planr.Core.Models.Spider
 @using Planr.Core.Models
-@using Planr.Core.Renderers
+@using Microsoft.JSInterop
 @using System.Text.Json
-@inject IJSRuntime JS
+@inject IJSRuntime JSRuntime
+@inherits ChartPageBase<SpiderSpec>
 
 <PageTitle>Spider Chart</PageTitle>
 
 <div class="container mt-4">
-    <h1>Spider Chart</h1>
-    <p class="lead">Visualise multiple series across categories in a radial plot</p>
+    <h1>@ChartTitle</h1>
+    <p class="lead">@ChartDescription</p>
 
     <div class="row">
         <div class="col-md-12">
@@ -23,7 +24,7 @@
                     </h5>
                     <div class="d-flex align-items-center">
                         <div class="me-2">
-                             <InputFile OnChange="LoadFile" class="form-control form-control-sm" accept=".json" />
+                             <InputFile OnChange="(e) => LoadFile(e)" class="form-control form-control-sm" accept=".json" />
                         </div>
 
                         <button type="button" class="btn btn-primary btn-sm me-2" @onclick="AddItem">+ Add Item</button>
@@ -57,7 +58,7 @@
                                                 <input type="number" class="form-control form-control-sm" @bind="item.SeriesValues[seriesName]" min="-1" max="4" step="0.5" placeholder="-1 to 4">
                                             </td>
                                         }
-                                        <td><button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => RemoveItem(item)">Remove</button></td>
+                                        <td><button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => RemoveSpiderItem(item)">Remove</button></td>
                                     </tr>
                                 }
                             </tbody>
@@ -136,89 +137,87 @@
 </div>
 
 @code {
-    private SpiderSpec Spec { get; set; } = new();
-    private string? ChartHtml { get; set; }
-    private string? ErrorMessage { get; set; }
-    private bool ShowItemEditor { get; set; } = true;
-    private bool ShowChartSettings { get; set; } = false;
     private Dictionary<int, string> _previousSeriesNames = new();
 
-    protected override void OnInitialized()
+    protected override string ChartTitle => "Spider Chart";
+    protected override string ChartDescription => "Visualise multiple series across categories in a radial plot";
+    protected override string ExportFileName => "spider-spec.json";
+
+    protected override Func<Task> GenerateChartAsync => () => Task.Run(() =>
     {
-        Spec.Config.SeriesNames = new List<string> { "First", "Second", "Third" };
+        ChartHtml = Renderer.Render(Spec, partial: true);
+    });
+
+    protected override void InitializeDefaultData()
+    {
+        Spec = new SpiderSpec
+        {
+            Config = new SpiderConfig
+            {
+                SeriesNames = new List<string> { "First", "Second", "Third" }
+            },
+            Items = new List<SpiderItem>
+            {
+                new()
+                {
+                    Category = "Dimension 1",
+                    SeriesValues = new Dictionary<string, double?>
+                    {
+                        { "First", -1 },
+                        { "Second", 2 },
+                        { "Third", null }
+                    }
+                },
+                new()
+                {
+                    Category = "Dimension 2",
+                    SeriesValues = new Dictionary<string, double?>
+                    {
+                        { "First", -1 },
+                        { "Second", 3 },
+                        { "Third", null }
+                    }
+                },
+                new()
+                {
+                    Category = "Dimension 3",
+                    SeriesValues = new Dictionary<string, double?>
+                    {
+                        { "First", 0 },
+                        { "Second", 3 },
+                        { "Third", null }
+                    }
+                },
+                new()
+                {
+                    Category = "Dimension 4",
+                    SeriesValues = new Dictionary<string, double?>
+                    {
+                        { "First", 1 },
+                        { "Second", 2 },
+                        { "Third", null }
+                    }
+                },
+                new()
+                {
+                    Category = "Dimension 5",
+                    SeriesValues = new Dictionary<string, double?>
+                    {
+                        { "First", 2 },
+                        { "Second", 1 },
+                        { "Third", null }
+                    }
+                },
+            }
+        };
+
         _previousSeriesNames = new Dictionary<int, string>
         {
             { 0, "First" },
             { 1, "Second" },
             { 2, "Third" }
         };
-
-        Spec.Items = new List<SpiderItem>
-        {
-            new()
-            {
-                Category = "Dimension 1",
-                SeriesValues = new Dictionary<string, double?>
-                {
-                    { "First", -1 },
-                    { "Second", 2 },
-                    { "Third", null }
-                }
-            },
-            new()
-            {
-                Category = "Dimension 2",
-                SeriesValues = new Dictionary<string, double?>
-                {
-                    { "First", -1 },
-                    { "Second", 3 },
-                    { "Third", null }
-                }
-            },
-            new()
-            {
-                Category = "Dimension 3",
-                SeriesValues = new Dictionary<string, double?>
-                {
-                    { "First", 0 },
-                    { "Second", 3 },
-                    { "Third", null }
-                }
-            },
-            new()
-            {
-                Category = "Dimension 4",
-                SeriesValues = new Dictionary<string, double?>
-                {
-                    { "First", 1 },
-                    { "Second", 2 },
-                    { "Third", null }
-                }
-            },
-            new()
-            {
-                Category = "Dimension 5",
-                SeriesValues = new Dictionary<string, double?>
-                {
-                    { "First", 2 },
-                    { "Second", 1 },
-                    { "Third", null }
-                }
-            },
-        };
     }
-
-    private void ToggleItemEditor()
-    {
-        ShowItemEditor = !ShowItemEditor;
-    }
-
-    private void ToggleChartSettings()
-    {
-        ShowChartSettings = !ShowChartSettings;
-    }
-
-    private string GetScreenWidthLabel(Screen.Width width) => Screen.WidthCssOption(width);
 
     private void AddItem()
     {
@@ -236,7 +235,7 @@
         Spec.Items.Add(newItem);
     }
 
-    private void RemoveItem(SpiderItem item)
+    private void RemoveSpiderItem(SpiderItem item)
     {
         Spec.Items.Remove(item);
     }
@@ -292,81 +291,46 @@
         _previousSeriesNames[index] = newName;
     }
 
-    private async Task LoadFile(InputFileChangeEventArgs e)
+    protected override void OnFileLoaded()
     {
-        ErrorMessage = null;
-        try
+        if (Spec.Items == null) Spec.Items = new List<SpiderItem>();
+        if (Spec.Config == null) Spec.Config = new SpiderConfig();
+        if (Spec.Config.SeriesNames == null) Spec.Config.SeriesNames = new List<string> { "First", "Second", "Third" };
+
+        _previousSeriesNames = new Dictionary<int, string>();
+        for (int i = 0; i < Spec.Config.SeriesNames.Count; i++)
         {
-            var file = e.File;
-            if (file != null)
-            {
-                using var stream = file.OpenReadStream();
-                var spec = await JsonSerializer.DeserializeAsync<SpiderSpec>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                if (spec != null)
-                {
-                    Spec = spec;
-                    if (Spec.Items == null) Spec.Items = new List<SpiderItem>();
-                    if (Spec.Config == null) Spec.Config = new SpiderConfig();
-                    if (Spec.Config.SeriesNames == null) Spec.Config.SeriesNames = new List<string> { "First", "Second", "Third" };
-
-                    _previousSeriesNames = new Dictionary<int, string>();
-                    for (int i = 0; i < Spec.Config.SeriesNames.Count; i++)
-                    {
-                        _previousSeriesNames[i] = Spec.Config.SeriesNames[i];
-                    }
-
-                    foreach (var item in Spec.Items)
-                    {
-                        if (item.SeriesValues == null)
-                            item.SeriesValues = new Dictionary<string, double?>();
-
-                        var newSeriesValues = new Dictionary<string, double?>();
-                        foreach (var seriesName in Spec.Config.SeriesNames)
-                        {
-                            var found = false;
-                            foreach (var kvp in item.SeriesValues)
-                            {
-                                if (kvp.Key.Equals(seriesName, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    newSeriesValues[seriesName] = kvp.Value;
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found)
-                                newSeriesValues[seriesName] = null;
-                        }
-                        item.SeriesValues = newSeriesValues;
-                    }
-
-                    GenerateChart();
-                }
-            }
+            _previousSeriesNames[i] = Spec.Config.SeriesNames[i];
         }
-        catch (Exception ex)
+
+        foreach (var item in Spec.Items)
         {
-            ErrorMessage = $"Error parsing imported JSON: {ex.Message}";
+            if (item.SeriesValues == null)
+                item.SeriesValues = new Dictionary<string, double?>();
+
+            var newSeriesValues = new Dictionary<string, double?>();
+            foreach (var seriesName in Spec.Config.SeriesNames)
+            {
+                var found = false;
+                foreach (var kvp in item.SeriesValues)
+                {
+                    if (kvp.Key.Equals(seriesName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        newSeriesValues[seriesName] = kvp.Value;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    newSeriesValues[seriesName] = null;
+            }
+            item.SeriesValues = newSeriesValues;
         }
     }
 
     private async Task ExportJson()
     {
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var json = JsonSerializer.Serialize(Spec, options);
-        await JS.InvokeVoidAsync("downloadFile", "spider-spec.json", json);
-    }
-
-    private void GenerateChart()
-    {
-        ErrorMessage = null;
-        try
-        {
-            ChartHtml = HtmlSpiderRenderer.Render(Spec, partial: true);
-        }
-        catch (Exception ex)
-        {
-             ErrorMessage = $"Error generating chart: {ex.Message}";
-        }
-        ShowItemEditor = false;
+        var json = JsonSerializer.Serialize(Spec, GetOptions());
+        await JSRuntime.InvokeVoidAsync("downloadFile", ExportFileName, json);
     }
 }

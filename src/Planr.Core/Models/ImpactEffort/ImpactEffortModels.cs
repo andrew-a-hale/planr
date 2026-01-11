@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Planr.Core.Configuration;
 
 namespace Planr.Core.Models.ImpactEffort;
 
@@ -30,17 +29,7 @@ public class ImpactEffortTask
   public EffortLevel Effort { get; set; } = EffortLevel.Medium;
 }
 
-public class ImpactEffortConfig
-{
-  [JsonPropertyName("title")]
-  public string Title { get; set; } = "Impact-Effort Matrix";
-
-  [JsonIgnore]
-  public Screen.Width ContainerMaxWidth { get; set; } = Screen.Width.Wide;
-
-  [JsonPropertyName("containerMaxWidth")]
-  public string ContainerMaxWidthCss => Screen.WidthCss(ContainerMaxWidth);
-}
+public class ImpactEffortConfig : ChartConfig { }
 
 public enum ImpactLevel
 {

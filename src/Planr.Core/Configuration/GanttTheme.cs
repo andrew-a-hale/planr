@@ -7,11 +7,11 @@ public static class GanttTheme
   public static Dictionary<GanttPriority, string> PriorityColors { get; set; } =
       new()
       {
-            { GanttPriority.Critical, Colors.Red },
-            { GanttPriority.High, Colors.Orange },
-            { GanttPriority.Medium, Colors.Gold },
-            { GanttPriority.Low, Colors.Blue },
-            { GanttPriority.Lowest, Colors.Green },
+        { GanttPriority.Critical, Colors.Red },
+        { GanttPriority.High, Colors.Orange },
+        { GanttPriority.Medium, Colors.Gold },
+        { GanttPriority.Low, Colors.Blue },
+        { GanttPriority.Lowest, Colors.Green },
       };
 
   public static string GetColor(GanttPriority priority)

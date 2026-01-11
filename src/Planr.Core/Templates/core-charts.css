@@ -53,35 +53,43 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
-/* Base chart styles */
-.chart-container {
+/* Base chart wrapper - shared by all chart types */
+.chart-wrapper {
   font-family: var(--font-family);
   line-height: 1;
   color: var(--gantt-text);
   background: white;
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
   max-width: var(--container-max-width, 1200px);
   margin: 0 auto;
-  padding: var(--spacing-lg);
 }
 
-.chart-header {
-  background: var(--gantt-header-bg);
-  border-bottom: 1px solid var(--gantt-border);
-  padding: var(--spacing-lg);
-}
-
-.chart-title {
+.chart-wrapper h1 {
   font-size: var(--font-size-2xl);
   font-weight: 600;
   color: var(--gantt-primary);
-  margin: 0 0 var(--spacing-md) 0;
+  margin: 0 0 var(--spacing-lg) 0;
 }
 
-.chart-body {
+.chart-wrapper.text-center {
+  text-align: center;
+}
+
+/* Gantt Chart Specific */
+.chart-container {
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
   padding: var(--spacing-lg);
+}
+
+/* Impact-Effort Chart Specific */
+.impact-effort-chart {
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Spider Chart Specific */
+.spider-chart {
+  margin-bottom: var(--spacing-md);
 }
 
 /* Priority-based color utilities */
@@ -112,6 +120,7 @@
   background: #f8f9fa;
   border-radius: var(--border-radius-md);
   border: 1px solid #e9ecef;
+  justify-content: center;
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-md);
@@ -249,16 +258,17 @@
 }
 
 /* Impact-Effort Grid Specific Styles */
-.impact-effort-chart {
+.impact-effort-chart,
+.spider-chart {
   text-align: center;
+}
+
+.impact-effort-chart {
   margin-bottom: var(--spacing-lg);
 }
 
 .impact-effort-chart h1 {
-  font-size: var(--font-size-2xl);
-  font-weight: 600;
   color: var(--impact-effort-primary);
-  margin: 0 0 var(--spacing-lg) 0;
 }
 
 .impact-effort-container {
@@ -478,14 +488,7 @@
 
 /* Spider Chart Specific Styles */
 .spider-chart {
-  text-align: center;
   margin-bottom: var(--spacing-md);
-}
-
-.spider-chart h1 {
-  font-size: var(--font-size-2xl);
-  font-weight: 600;
-  color: var(--gantt-primary);
 }
 
 .spider-chart-container {
@@ -495,7 +498,7 @@
   box-sizing: border-box;
 }
 
-.spider-chart-container .chart-legend {
+.spider-chart-container {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-md);

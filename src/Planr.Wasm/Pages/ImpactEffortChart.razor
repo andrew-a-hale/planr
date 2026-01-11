@@ -2,34 +2,35 @@
 @using Planr.Core.Configuration
 @using Planr.Core.Models.ImpactEffort
 @using Planr.Core.Models
-@using Planr.Core.Renderers
+@using Microsoft.JSInterop
 @using System.Text.Json
-@inject IJSRuntime JS
+@inject IJSRuntime JSRuntime
+@inherits ChartPageBase<ImpactEffortSpec>
 
 <PageTitle>Impact-Effort Matrix</PageTitle>
 
 <div class="container mt-4">
-    <h1>Impact-Effort Matrix</h1>
-    <p class="lead">Analyse tasks by their impact and effort to prioritise work</p>
+    <h1>@ChartTitle</h1>
+    <p class="lead">@ChartDescription</p>
 
     <div class="row">
         <div class="col-md-12">
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
-                        <button class="btn btn-link text-decoration-none text-dark p-0 fw-bold" type="button" @onclick="ToggleTaskEditor">
-                            Task Editor <span style="font-size: 0.8em">@(ShowTaskEditor ? "▼" : "▶")</span>
+                        <button class="btn btn-link text-decoration-none text-dark p-0 fw-bold" type="button" @onclick="ToggleItemEditor">
+                            Task Editor <span style="font-size: 0.8em">@(ShowItemEditor ? "▼" : "▶")</span>
                         </button>
                     </h5>
                     <div class="d-flex align-items-center">
                         <div class="me-2">
-                             <InputFile OnChange="LoadFile" class="form-control form-control-sm" accept=".json" />
+                             <InputFile OnChange="(e) => LoadFile(e)" class="form-control form-control-sm" accept=".json" />
                         </div>
 
                         <button type="button" class="btn btn-primary btn-sm me-2" @onclick="AddTask">+ Add Task</button>
                     </div>
                 </div>
-                <div class="@(ShowTaskEditor ? "collapse show" : "collapse")">
+                <div class="@(ShowItemEditor ? "collapse show" : "collapse")">
                     <div class="card-body p-0">
                         <table class="table table-striped table-hover mb-0">
                             <thead class="table-light">
@@ -129,67 +130,60 @@
 </div>
 
 @code {
-    private ImpactEffortSpec Spec { get; set; } = new();
-    private string? ChartHtml { get; set; }
-    private string? ErrorMessage { get; set; }
-    private bool ShowTaskEditor { get; set; } = true;
-    private bool ShowChartSettings { get; set; } = false;
+    protected override string ChartTitle => "Impact-Effort Matrix";
+    protected override string ChartDescription => "Analyse tasks by their impact and effort to prioritise work";
+    protected override string ExportFileName => "impact-effort-spec.json";
 
-    protected override void OnInitialized()
+    protected override Func<Task> GenerateChartAsync => () => Task.Run(() =>
     {
-        // Default data
-        Spec.Tasks = new List<ImpactEffortTask>
+        ChartHtml = Renderer.Render(Spec, partial: true);
+    });
+
+    protected override void InitializeDefaultData()
+    {
+        Spec = new ImpactEffortSpec
         {
-            new()
+            Tasks = new List<ImpactEffortTask>
             {
-                Ref = "01",
-                Name = "User Authentication",
-                Category = "Security",
-                Impact = ImpactLevel.High,
-                Effort = EffortLevel.Medium,
-            },
-            new()
-            {
-                Ref = "02", 
-                Name = "Password Reset Feature",
-                Category = "Security",
-                Impact = ImpactLevel.High,
-                Effort = EffortLevel.Low,
-            },
-            new()
-            {
-                Ref = "03",
-                Name = "Bug Fixes",
-                Category = "Maintenance",
-                Impact = ImpactLevel.Medium,
-                Effort = EffortLevel.Low,
-            },
-            new()
-            {
-                Ref = "04",
-                Name = "API Documentation",
-                Category = "Documentation",
-                Impact = ImpactLevel.Medium,
-                Effort = EffortLevel.High,
+                new()
+                {
+                    Ref = "01",
+                    Name = "User Authentication",
+                    Category = "Security",
+                    Impact = ImpactLevel.High,
+                    Effort = EffortLevel.Medium,
+                },
+                new()
+                {
+                    Ref = "02",
+                    Name = "Password Reset Feature",
+                    Category = "Security",
+                    Impact = ImpactLevel.High,
+                    Effort = EffortLevel.Low,
+                },
+                new()
+                {
+                    Ref = "03",
+                    Name = "Bug Fixes",
+                    Category = "Maintenance",
+                    Impact = ImpactLevel.Medium,
+                    Effort = EffortLevel.Low,
+                },
+                new()
+                {
+                    Ref = "04",
+                    Name = "API Documentation",
+                    Category = "Documentation",
+                    Impact = ImpactLevel.Medium,
+                    Effort = EffortLevel.High,
+                }
             }
         };
     }
 
-    private void ToggleTaskEditor()
-    {
-        ShowTaskEditor = !ShowTaskEditor;
-    }
-
-    private void ToggleChartSettings()
-    {
-        ShowChartSettings = !ShowChartSettings;
-    }
-
-    private string GetScreenWidthLabel(Screen.Width width) => Screen.WidthCssOption(width);
-
     private void AddTask()
     {
-        var nextNumber = (Spec.Tasks.Count + 1) % 100; // Cycle through 00-99
+        var nextNumber = (Spec.Tasks.Count + 1) % 100;
         Spec.Tasks.Add(new ImpactEffortTask
         {
             Ref = $"{nextNumber:D2}",
@@ -205,61 +199,27 @@
         Spec.Tasks.Remove(task);
     }
 
-    private async Task LoadFile(InputFileChangeEventArgs e)
+    protected override void OnFileLoaded()
     {
-        ErrorMessage = null;
-        try
+        foreach (var task in Spec.Tasks)
         {
-            var file = e.File;
-            if (file != null)
-            {
-                using var stream = file.OpenReadStream();
-                var spec = await JsonSerializer.DeserializeAsync<ImpactEffortSpec>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                if (spec != null)
-                {
-                    // Validate and format all references to be exactly 2 characters
-                    foreach (var task in spec.Tasks)
-                    {
-                        if (string.IsNullOrEmpty(task.Ref))
-                            task.Ref = "00";
-                        else if (task.Ref.Length > 2)
-                            task.Ref = task.Ref.Substring(0, 2).ToUpper();
-                        else if (task.Ref.Length < 2)
-                            task.Ref = task.Ref.PadRight(2, '0').ToUpper();
-                        else
-                            task.Ref = task.Ref.ToUpper();
-                    }
-                    
-                    Spec = spec;
-                    if (Spec.Tasks == null) Spec.Tasks = new List<ImpactEffortTask>();
-                    GenerateChart();
-                }
-            }
+            if (string.IsNullOrEmpty(task.Ref))
+                task.Ref = "00";
+            else if (task.Ref.Length > 2)
+                task.Ref = task.Ref.Substring(0, 2).ToUpper();
+            else if (task.Ref.Length < 2)
+                task.Ref = task.Ref.PadRight(2, '0').ToUpper();
+            else
+                task.Ref = task.Ref.ToUpper();
         }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Error parsing imported JSON: {ex.Message}";
-        }
+
+        if (Spec.Tasks == null)
+            Spec.Tasks = new List<ImpactEffortTask>();
     }
 
     private async Task ExportJson()
     {
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var json = JsonSerializer.Serialize(Spec, options);
-        await JS.InvokeVoidAsync("downloadFile", "impact-effort-spec.json", json);
-    }
-
-    private void GenerateChart()
-    {
-        ErrorMessage = null;
-        try
-        {
-            ChartHtml = HtmlImpactEffortRenderer.Render(Spec, partial: true);
-        }
-        catch (Exception ex)
-        {
-             ErrorMessage = $"Error generating chart: {ex.Message}";
-        }
-        ShowTaskEditor = false;
+        var json = JsonSerializer.Serialize(Spec, GetOptions());
+        await JSRuntime.InvokeVoidAsync("downloadFile", ExportFileName, json);
     }
 }
