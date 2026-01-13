@@ -18,9 +18,9 @@ public class TimeBlock
 {
   public string Project { get; set; } = string.Empty;
   public string TaskName { get; set; } = string.Empty;
-  public DateTime Start { get; set; }
-  public DateTime End { get; set; }
-  public int Duration => (int)Math.Ceiling((End - Start).TotalDays) + 1;
+  public DateOnly Start { get; set; }
+  public DateOnly End { get; set; }
+  public int Duration => End.DayNumber - Start.DayNumber + 1;
   public GanttPriority Priority { get; set; }
   public string PriorityCss => GanttTheme.GetPriorityCss(Priority);
   public string Color { get; set; } = string.Empty;
@@ -50,8 +50,8 @@ public class WeekMarker
 public class TaskViewModel
 {
   public string Name { get; set; } = string.Empty;
-  public DateTime Start { get; set; }
-  public DateTime End { get; set; }
+  public DateOnly Start { get; set; }
+  public DateOnly End { get; set; }
   public double LeftPercent { get; set; }
   public double WidthPercent { get; set; }
   public string Color { get; set; } = string.Empty;

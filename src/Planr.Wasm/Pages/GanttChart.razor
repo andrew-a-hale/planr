@@ -3,8 +3,6 @@
 @using Planr.Core.Models
 @using Planr.Core.Models.Gantt
 @using Microsoft.JSInterop
-@using System.Text.Json
-@inject IJSRuntime JSRuntime
 @inherits ChartPageBase<GanttSpec>
 
 <PageTitle>Gantt Chart</PageTitle>
@@ -24,7 +22,7 @@
                     </h5>
                     <div class="d-flex align-items-center">
                         <div class="me-2">
-                             <InputFile OnChange="(e) => LoadFile(e)" class="form-control form-control-sm" accept=".json" />
+                             <InputFile OnChange="(e) => LoadFile(e)" class="form-control form-control-sm" accept=".json,.csv" />
                         </div>
 
                         <button type="button" class="btn btn-primary btn-sm me-2" @onclick="AddTask">+ Add Task</button>
@@ -49,8 +47,8 @@
                                     <tr>
                                         <td><input type="text" class="form-control form-control-sm" @bind="task.Project" placeholder="Project Name"></td>
                                         <td><input type="text" class="form-control form-control-sm" @bind="task.Name" placeholder="Task Name"></td>
-                                        <td><input type="date" class="form-control form-control-sm" @bind="task.Start" ></td>
-                                        <td><input type="date" class="form-control form-control-sm" @bind="task.End" ></td>
+                                        <td><input type="text" class="form-control form-control-sm" @bind="task.Start" @bind:format="yyyy-MM-dd" placeholder="yyyy-mm-dd"></td>
+                                        <td><input type="text" class="form-control form-control-sm" @bind="task.End" @bind:format="yyyy-MM-dd" placeholder="yyyy-mm-dd"></td>
                                         <td>
                                             <select class="form-select form-select-sm" @bind="task.Priority">
                                                 @foreach (var p in Enum.GetValues<GanttPriority>())
@@ -122,6 +120,7 @@
             <h5 class="mb-0">Chart Preview</h5>
             <div class="d-flex align-items-center">
               <button type="button" class="btn btn-outline-secondary btn-sm me-2" @onclick="ExportJson">Export JSON</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm me-2" @onclick="ExportCsv">Export CSV</button>
               <button type="button" class="btn btn-success btn-sm" @onclick="GenerateChart">Generate Chart</button>
             </div>
         </div>
@@ -137,7 +136,7 @@
 @code {
     protected override string ChartTitle => "Gantt Chart";
     protected override string ChartDescription => "Add your project tasks and customise a Gantt chart";
-    protected override string ExportFileName => "planr-spec.json";
+    protected override string ExportFileName => "planr-gantt.json";
 
     protected override Func<Task> GenerateChartAsync => () => Task.Run(() =>
     {
@@ -154,16 +153,16 @@
                 {
                     Project = "Project Alpha",
                     Name = "Planning",
-                    Start = DateTime.Today,
-                    End = DateTime.Today.AddDays(14),
+                    Start = DateOnly.FromDateTime(DateTime.Today),
+                    End = DateOnly.FromDateTime(DateTime.Today).AddDays(14),
                     Priority = GanttPriority.Critical,
                 },
                 new()
                 {
                     Project = "Project Alpha",
                     Name = "Execution",
-                    Start = DateTime.Today.AddDays(14),
-                    End = DateTime.Today.AddDays(28),
+                    Start = DateOnly.FromDateTime(DateTime.Today).AddDays(14),
+                    End = DateOnly.FromDateTime(DateTime.Today).AddDays(28),
                     Priority = GanttPriority.High,
                 },
             }
@@ -176,8 +175,8 @@
         {
             Project = "New Project",
             Name = "New Task",
-            Start = DateTime.Today,
-            End = DateTime.Today.AddDays(7),
+            Start = DateOnly.FromDateTime(DateTime.Today),
+            End = DateOnly.FromDateTime(DateTime.Today).AddDays(7),
             Priority = GanttPriority.Medium
         });
     }
@@ -195,7 +194,23 @@
 
     private async Task ExportJson()
     {
-        var json = JsonSerializer.Serialize(Spec, GetOptions());
+        var json = PersistenceService.ToJson(Spec);
         await JSRuntime.InvokeVoidAsync("downloadFile", ExportFileName, json);
+    }
+
+    protected override async Task ExportCsv()
+    {
+        var csv = PersistenceService.ExportGantt(Spec.Tasks);
+        await JSRuntime.InvokeVoidAsync("downloadFile", "planr-gantt.csv", csv, "text/csv");
+    }
+
+    protected override Task ImportCsv(string csvContent)
+    {
+        var tasks = PersistenceService.ImportGantt(csvContent);
+        if (tasks != null)
+        {
+            Spec.Tasks = tasks;
+        }
+        return Task.CompletedTask;
     }
 }

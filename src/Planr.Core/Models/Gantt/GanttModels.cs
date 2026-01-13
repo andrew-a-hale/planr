@@ -20,10 +20,10 @@ public class GanttTask
   public string Name { get; set; } = string.Empty;
 
   [JsonPropertyName("start")]
-  public DateTime Start { get; set; }
+  public DateOnly Start { get; set; }
 
   [JsonPropertyName("end")]
-  public DateTime End { get; set; }
+  public DateOnly End { get; set; }
 
   [JsonPropertyName("priority")]
   public GanttPriority Priority { get; set; } = GanttPriority.Medium;

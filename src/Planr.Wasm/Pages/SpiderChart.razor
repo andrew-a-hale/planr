@@ -3,8 +3,6 @@
 @using Planr.Core.Models.Spider
 @using Planr.Core.Models
 @using Microsoft.JSInterop
-@using System.Text.Json
-@inject IJSRuntime JSRuntime
 @inherits ChartPageBase<SpiderSpec>
 
 <PageTitle>Spider Chart</PageTitle>
@@ -24,7 +22,7 @@
                     </h5>
                     <div class="d-flex align-items-center">
                         <div class="me-2">
-                             <InputFile OnChange="(e) => LoadFile(e)" class="form-control form-control-sm" accept=".json" />
+                             <InputFile OnChange="(e) => LoadFile(e)" class="form-control form-control-sm" accept=".json,.csv" />
                         </div>
 
                         <button type="button" class="btn btn-primary btn-sm me-2" @onclick="AddItem">+ Add Item</button>
@@ -124,6 +122,7 @@
             <h5 class="mb-0">Chart Preview</h5>
             <div class="d-flex align-items-center">
               <button type="button" class="btn btn-outline-secondary btn-sm me-2" @onclick="ExportJson">Export JSON</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm me-2" @onclick="ExportCsv">Export CSV</button>
               <button type="button" class="btn btn-success btn-sm" @onclick="GenerateChart">Generate Chart</button>
             </div>
         </div>
@@ -330,7 +329,21 @@
 
     private async Task ExportJson()
     {
-        var json = JsonSerializer.Serialize(Spec, GetOptions());
+        var json = PersistenceService.ToJson(Spec);
         await JSRuntime.InvokeVoidAsync("downloadFile", ExportFileName, json);
+    }
+
+    protected override async Task ExportCsv()
+    {
+        var csv = PersistenceService.ExportSpider(Spec.Config, Spec.Items);
+        await JSRuntime.InvokeVoidAsync("downloadFile", "planr-spider.csv", csv, "text/csv");
+    }
+
+    protected override Task ImportCsv(string csvContent)
+    {
+        var result = PersistenceService.ImportSpider(csvContent);
+        Spec.Config = result.Config;
+        Spec.Items = result.Items;
+        return Task.CompletedTask;
     }
 }

@@ -59,9 +59,9 @@ public class HtmlGanttRenderer : IChartRenderer<GanttSpec>
       daysUntilNextMonday = 7;
     maxDate = maxDate.AddDays(daysUntilNextMonday);
 
-    var totalDuration = (maxDate - minDate).TotalSeconds;
-    if (totalDuration <= 0)
-      totalDuration = 1; // Prevent division by zero
+    var totalDays = maxDate.DayNumber - minDate.DayNumber;
+    if (totalDays <= 0)
+      totalDays = 1; // Prevent division by zero
 
     var vm = new ViewModels.Gantt.GanttViewModel
     {
@@ -85,16 +85,15 @@ public class HtmlGanttRenderer : IChartRenderer<GanttSpec>
     vm.Legend = [.. vm.Legend.OrderBy(x => x.Value)];
 
     // Generate Weeks
-    var oneWeekSeconds = 7.0 * 24 * 60 * 60;
-    var weekWidthPercent = oneWeekSeconds / totalDuration * 100;
+    var weekWidthPercent = 7.0 / totalDays * 100;
 
     var currentDate = minDate;
     while (currentDate < maxDate)
     {
       if (currentDate.DayOfWeek == DayOfWeek.Monday)
       {
-        var offset = (currentDate - minDate).TotalSeconds;
-        var leftPercent = offset / totalDuration * 100;
+        var offsetDays = currentDate.DayNumber - minDate.DayNumber;
+        var leftPercent = (double)offsetDays / totalDays * 100;
 
         vm.Weeks.Add(
             new ViewModels.Gantt.WeekMarker
@@ -117,12 +116,11 @@ public class HtmlGanttRenderer : IChartRenderer<GanttSpec>
 
       foreach (var task in group.OrderBy(t => t.Start))
       {
-        var offset = (task.Start - minDate).TotalSeconds;
-        var duration = (task.End - task.Start).TotalSeconds;
+        var offsetDays = task.Start.DayNumber - minDate.DayNumber;
+        var durationDays = task.End.DayNumber - task.Start.DayNumber;
 
-        var leftPercent = offset / totalDuration * 100;
-        var widthPercent = duration / totalDuration * 100;
-        var weeks = (task.End - task.Start).TotalDays / 7.0;
+        var leftPercent = (double)offsetDays / totalDays * 100;
+        var widthPercent = (double)durationDays / totalDays * 100;
 
         var weekMarks = new List<double>();
         // Find first Monday strictly after start date
@@ -134,9 +132,9 @@ public class HtmlGanttRenderer : IChartRenderer<GanttSpec>
 
         while (nextMonday < task.End)
         {
-          var markOffset = (nextMonday - task.Start).TotalSeconds;
+          var markOffsetDays = nextMonday.DayNumber - task.Start.DayNumber;
           // Calculate percentage relative to the task width, not total width
-          var markPercent = markOffset / duration * 100;
+          var markPercent = (double)markOffsetDays / durationDays * 100;
           weekMarks.Add(markPercent);
           nextMonday = nextMonday.AddDays(7);
         }
@@ -146,6 +144,8 @@ public class HtmlGanttRenderer : IChartRenderer<GanttSpec>
             {
               Name = task.Name,
               Priority = task.Priority,
+              Start = task.Start,
+              End = task.End,
               LeftPercent = leftPercent,
               WidthPercent = widthPercent,
               Color = GanttTheme.GetColor(task.Priority),

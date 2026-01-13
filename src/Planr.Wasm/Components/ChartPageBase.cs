@@ -1,14 +1,17 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
 using Planr.Core.Configuration;
 using Planr.Core.Renderers;
-using System.Text.Json;
+using Planr.Core.Services;
 
 namespace Planr.Wasm.Components;
 
 public abstract class ChartPageBase<TSpec> : ComponentBase where TSpec : class, new()
 {
   [Inject] protected IChartRenderer<TSpec> Renderer { get; set; } = default!;
+  [Inject] protected IChartPersistenceService PersistenceService { get; set; } = default!;
+  [Inject] protected IJSRuntime JSRuntime { get; set; } = default!;
 
   protected TSpec Spec { get; set; } = new();
   protected string? ChartHtml { get; set; }
@@ -30,12 +33,8 @@ public abstract class ChartPageBase<TSpec> : ComponentBase where TSpec : class, 
   protected void ToggleItemEditor() => ShowItemEditor = !ShowItemEditor;
   protected void ToggleChartSettings() => ShowChartSettings = !ShowChartSettings;
   protected string GetScreenWidthLabel(Screen.Width width) => Screen.WidthCssOption(width);
-  protected JsonSerializerOptions GetOptions()
-  {
-    return new() { PropertyNameCaseInsensitive = true };
-  }
 
-  protected async Task LoadFile(InputFileChangeEventArgs e, JsonSerializerOptions? options = null)
+  protected async Task LoadFile(InputFileChangeEventArgs e)
   {
     ErrorMessage = null;
     try
@@ -44,20 +43,35 @@ public abstract class ChartPageBase<TSpec> : ComponentBase where TSpec : class, 
       if (file != null)
       {
         using var stream = file.OpenReadStream();
-        var spec = await JsonSerializer.DeserializeAsync<TSpec>(stream, options ?? GetOptions());
-        if (spec != null)
+        using var reader = new StreamReader(stream);
+        var content = await reader.ReadToEndAsync();
+
+        if (file.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
         {
-          Spec = spec;
-          OnFileLoaded();
-          await GenerateChartAsync();
+          await ImportCsv(content);
         }
+        else
+        {
+          var spec = PersistenceService.FromJson<TSpec>(content);
+          if (spec != null)
+          {
+            Spec = spec;
+          }
+        }
+
+        OnFileLoaded();
+        await GenerateChartAsync();
       }
     }
     catch (Exception ex)
     {
-      ErrorMessage = $"Error parsing imported JSON: {ex.Message}";
+      ErrorMessage = $"Error parsing imported file: {ex.Message}";
     }
   }
+
+  protected virtual Task ImportCsv(string csvContent) => Task.CompletedTask;
+
+  protected virtual async Task ExportCsv() => await Task.CompletedTask;
 
   protected virtual void OnFileLoaded() { }
 

@@ -4,6 +4,7 @@ using Planr.Core.Models.Gantt;
 using Planr.Core.Models.ImpactEffort;
 using Planr.Core.Models.Spider;
 using Planr.Core.Renderers;
+using Planr.Core.Services;
 using Planr.Wasm;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -18,5 +19,6 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.AddScoped<IChartRenderer<GanttSpec>, HtmlGanttRenderer>();
 builder.Services.AddScoped<IChartRenderer<ImpactEffortSpec>, HtmlImpactEffortRenderer>();
 builder.Services.AddScoped<IChartRenderer<SpiderSpec>, HtmlSpiderRenderer>();
+builder.Services.AddScoped<IChartPersistenceService, ChartPersistenceService>();
 
 await builder.Build().RunAsync();
