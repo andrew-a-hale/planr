@@ -27,8 +27,8 @@
         <span class="dismiss">🗙</span>
     </div>
     <script>
-        window.downloadFile = (fileName, content) => {
-            const blob = new Blob([content], { type: 'application/json' });
+        window.downloadFile = (fileName, content, contentType = 'application/json') => {
+            const blob = new Blob([content], { type: contentType });
             const url = URL.createObjectURL(blob);
             const anchor = document.createElement('a');
             anchor.href = url;
