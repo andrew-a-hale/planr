@@ -7,6 +7,14 @@ BASE_HREF="/tools/planr/"
 
 echo "🚀 Starting portal-optimized build..."
 
+# 0. Run Tests
+echo "🧪 Running tests..."
+dotnet test --nologo
+if [ $? -ne 0 ]; then
+    echo "❌ Tests failed. Build aborted."
+    exit 1
+fi
+
 # 1. Clean and Publish
 echo "📦 Publishing Blazor WebAssembly..."
 dotnet publish "$PROJECT_PATH" -c Release -o "$OUTPUT_DIR" --nologo

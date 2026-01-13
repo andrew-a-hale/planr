@@ -44,7 +44,7 @@ public class HtmlGanttRenderer : IChartRenderer<GanttSpec>
     );
   }
 
-  private static ViewModels.Gantt.GanttViewModel BuildViewModel(GanttSpec spec)
+  internal static ViewModels.Gantt.GanttViewModel BuildViewModel(GanttSpec spec)
   {
     // Calculate global timeline
     var minDate = spec.Tasks.Min(t => t.Start);

@@ -41,7 +41,7 @@ public class HtmlImpactEffortRenderer : IChartRenderer<Models.ImpactEffort.Impac
     );
   }
 
-  private static ViewModels.ImpactEffort.ImpactEffortViewModel BuildViewModel(
+  internal static ViewModels.ImpactEffort.ImpactEffortViewModel BuildViewModel(
       Models.ImpactEffort.ImpactEffortSpec spec
   )
   {

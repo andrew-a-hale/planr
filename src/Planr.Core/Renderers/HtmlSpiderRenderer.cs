@@ -57,7 +57,7 @@ public class HtmlSpiderRenderer : IChartRenderer<SpiderSpec>
     );
   }
 
-  private static SpiderViewModel BuildViewModel(SpiderSpec spec)
+  internal static SpiderViewModel BuildViewModel(SpiderSpec spec)
   {
     var vm = new SpiderViewModel
     {
